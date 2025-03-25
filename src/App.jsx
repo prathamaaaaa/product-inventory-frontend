@@ -1,0 +1,27 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import List from "./component/List";
+import Add from "./component/Add";
+import Detail from "./component/Detail";
+import Register from "./component/Register";
+import Login from "./component/Login";
+import AdminPanel from "./component/AdminPanel";
+
+function App() {
+  return (
+    
+      <Routes>
+        <Route path="/list" element={<List />} />
+        <Route path="/add" element={<Add />} />
+        <Route path="/add/:id" element={<Add />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin/adminpanel" element={<AdminPanel />} />
+        <Route path="/detail/:id" element={<Detail />} />
+        <Route path="/admin/detail/:id" element={<Detail />} />
+        </Routes>
+    
+  );
+}
+
+export default App;
