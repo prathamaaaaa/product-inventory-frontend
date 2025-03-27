@@ -3,12 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Add() {
+  const params = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const [type, setType] = useState("category");
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
-
+  const storeId = params.get("storeId"); 
   const [categoryInputs, setCategoryInputs] = useState([""]);
   const [subcategoryInputs, setSubcategoryInputs] = useState([""]);
   const [productInputs, setProductInputs] = useState([{ name: "", details: "", price: "", imageUrls: [""] }]);
@@ -16,6 +17,9 @@ function Add() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
 
+  useEffect(() => {
+    console.log("Store ID:", storeId);
+  }, [storeId]);
 
   const { id } = useParams();
   const isEditMode = !!id;
@@ -130,7 +134,12 @@ function Add() {
       return;
     }
     if (type === "category") {
-      payload = categoryInputs.filter(name => name.trim() !== "");
+      payload = {
+        adminId: admin.id,
+        storeId,
+        categoryNames: categoryInputs.filter(name => name.trim() !== "")
+      };
+
       console.log("Submitting Category Payload:", payload);
 
       axios.post("http://localhost:8081/api/products/save-category", payload, {
@@ -147,7 +156,9 @@ function Add() {
       }
 
       payload = {
+        adminId: admin.id,
         categoryId: selectedCategory,
+        storeId,
         subcategoryNames: subcategoryInputs.filter(name => name.trim() !== "")
       };
 
@@ -181,6 +192,7 @@ if (admin.id === null || admin.id === undefined) {
           price: Number(productInputs[0].price),
           categoryId,
           subcategoryId,
+          storeId,
           imageUrls: productInputs[0].imageUrls.filter(url => url.trim() !== ""),
           active: true,
         };
@@ -200,6 +212,7 @@ if (admin.id === null || admin.id === undefined) {
           prices: productInputs.map(product => Number(product.price)),
           categoryId,
           subcategoryId,
+          storeId,
           imageUrls: productInputs.map(product => product.imageUrls.filter(url => url.trim() !== "")),
         
         };
@@ -249,12 +262,16 @@ if (admin.id === null || admin.id === undefined) {
   return (
     <div className=" min-h-screen p-8 text-dark">
       <h1 className="text-4xl font-bold mb-6 text-center">📦 Product Management</h1>
-      <button onClick={() => navigate("/admin/adminpanel")} className="text-primary hover:underline">
+      <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
         ← Back to List
       </button>
-      <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span>
+      {/* <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span> */}
 
-
+      {/* <div>
+      <h1 className="text-3xl font-bold">Add Product</h1>
+      {storeId && <p className="text-gray-600">Adding product to Store ID: {storeId}</p>}
+      {/* Product form goes here */}
+    {/* </div> */} */
       <form onSubmit={handleSubmit} className="bg-gray-100 rounded-2xl justify-self-center w-[70%] shadow-lg p-6 mt-6 space-y-6">
         {/* Type Selection */}
         <div className="flex items-center">
@@ -329,6 +346,7 @@ if (admin.id === null || admin.id === undefined) {
             <button type="button" onClick={addMoreSubcategory} className="bg-purple-700 hover:bg-purple-950 my-4 text-white px-4 py-2 rounded-lg">
               + Add More Subcategories
             </button>
+            {/* <span>{storeId}</span> */}
           </div>
         )}
 

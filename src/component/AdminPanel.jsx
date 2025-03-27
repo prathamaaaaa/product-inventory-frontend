@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FaTasks, FaUsers, FaProjectDiagram, FaBars, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useNavigate ,Link } from "react-router-dom";
+import { useNavigate,useLocation  ,NavLink } from "react-router-dom";
 import axios from "axios";
 import List from "./List";
 import Swal from "sweetalert2";
+import { Outlet } from "react-router-dom";
 
 import Papa from "papaparse"; // ✅ Import CSV Parser
+import Store from "./Store";
 
 
 
@@ -17,6 +19,7 @@ function AdminPanel() {
   const [subCategories, setSubCategories] = useState([]);
   const [admin, setAdmin] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   const handleUploadPopup = () => {
@@ -246,15 +249,14 @@ function AdminPanel() {
 
         {/* Sidebar Navigation */}
         <ul className="flex-grow space-y-2">
-          <li className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
+          <NavLink to="/admin/dashboard" className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
             <FaProjectDiagram /> <span>Dashboard</span>
-          </li>
-          <li className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
-            <FaTasks /> <span>Projects</span>
-          </li>
-          <li className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
-            <FaUsers /> <span>Tasks</span>
-          </li>
+          </NavLink>
+          <NavLink
+            to="/admin/store"
+            className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
+          <FaUsers/> <span>Stores</span></NavLink>
+        
         </ul>
         <div className="p-4 border-t border-gray-600">
           <button onClick={() => handleUploadPopup()} className="text-green-500 hover:underline">
@@ -291,7 +293,6 @@ function AdminPanel() {
             <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span>
             <span className="text-gray-700 font-medium">{admin?.id || "Loading..."}</span>
 
-           
           </div>
         </div>
 
@@ -326,10 +327,10 @@ function AdminPanel() {
             </motion.div>
           </div>
         </div>
-
+        
         {/* Product List Section */}
-        <List />
-      </div>
+        <Outlet />
+        </div>
     </div>
   );
 }
