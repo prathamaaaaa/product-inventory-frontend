@@ -1,28 +1,37 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate ,useLocation } from "react-router-dom";
 import axios from "axios";
 
 function Add() {
-  const params = new URLSearchParams(location.search);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   const navigate = useNavigate();
   const [type, setType] = useState("category");
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
-  const storeId = params.get("storeId"); 
   const [categoryInputs, setCategoryInputs] = useState([""]);
   const [subcategoryInputs, setSubcategoryInputs] = useState([""]);
   const [productInputs, setProductInputs] = useState([{ name: "", details: "", price: "", imageUrls: [""] }]);
-
+  
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  
+  const params = new URLSearchParams(location.search);
+  const urlStoreId = params.get("storeId"); // Get storeId from URL if present
+
+  const [selectedStore, setSelectedStore] = useState(""); // Selected Store
+  const [stores, setStores] = useState([]); // List of Stores
+
+  const storeId = urlStoreId || selectedStore; // ✅ Use URL storeId or selected one
+  const { id } = useParams();
+  const isEditMode = !!id;
+
 
   useEffect(() => {
     console.log("Store ID:", storeId);
   }, [storeId]);
 
-  const { id } = useParams();
-  const isEditMode = !!id;
   const [product, setProduct] = useState(null);
 
   const [admin, setAdmin] = useState(() => {
@@ -32,14 +41,13 @@ function Add() {
   // Fetch data for the given ID when it's available
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:8081/api/products/${id}`)
+      axios.get(`${BASE_URL}/api/products/${id}`)
         .then(response => {
           console.log("Fetched Data for ID:", id, response.data);
           setProduct(response.data);
 
           setType("product");
 
-          // 🔥 Find Category ID from Category Name
           const categoryObj = categories.find(cat => cat.name.toLowerCase() === response.data.categoryName.toLowerCase());
           const subcategoryObj = subCategories.find(sub => sub.name.toLowerCase() === response.data.subCategoryName.toLowerCase());
 
@@ -71,7 +79,7 @@ function Add() {
 
 
   useEffect(() => {
-    axios.get("http://localhost:8081/api/products/all")
+    axios.get(`${BASE_URL}/api/products/all`)
       .then(response => {
         setCategories(response.data.categories || []);
         setSubCategories(response.data.subCategories || []);
@@ -124,10 +132,26 @@ function Add() {
     updated[productIndex].imageUrls.push("");
     setProductInputs(updated);
   };
-
+  useEffect(() => {
+    if (admin && admin.id) {
+      axios.get(`${BASE_URL}/api/stores/admin/${admin.id}`)
+        .then(response => {
+          setStores(response.data);
+        })
+        .catch(error => console.error("Error fetching stores:", error));
+    }
+  }, [admin]); // Runs when `admin` changes
+  
+  const handleStoreChange = (e) => {
+    setSelectedStore(e.target.value);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     let payload;
+ if (!storeId) {
+  alert("Please select a store before submitting.");
+  return;
+}
 
     if (!admin || !admin.id) {
       alert("Error: Admin ID is missing. Please log in again.");
@@ -136,16 +160,16 @@ function Add() {
     if (type === "category") {
       payload = {
         adminId: admin.id,
-        storeId,
+        storeId: Number(storeId) || 0,
         categoryNames: categoryInputs.filter(name => name.trim() !== "")
       };
 
       console.log("Submitting Category Payload:", payload);
 
-      axios.post("http://localhost:8081/api/products/save-category", payload, {
+      axios.post(`${BASE_URL}/api/products/save-category`, payload, {
         headers: { "Content-Type": "application/json" }
       })
-        .then(() => navigate("/admin/adminpanel"))
+        .then(() => navigate("/admin/store"))
         .catch(error => console.error("Error saving category:", error));
     }
 
@@ -158,16 +182,16 @@ function Add() {
       payload = {
         adminId: admin.id,
         categoryId: selectedCategory,
-        storeId,
+        storeId: Number(storeId) || 0,
         subcategoryNames: subcategoryInputs.filter(name => name.trim() !== "")
       };
 
       console.log("Submitting Subcategory Payload:", payload);
 
-      axios.post("http://localhost:8081/api/products/save-subcategory", payload, {
+      axios.post(`${BASE_URL}/api/products/save-subcategory`, payload, {
         headers: { "Content-Type": "application/json" }
       })
-        .then(() => navigate("/admin/adminpanel"))
+        .then(() => navigate("/admin/store"))
         .catch(error => console.error("Error saving subcategory:", error));
     }
 
@@ -192,16 +216,16 @@ if (admin.id === null || admin.id === undefined) {
           price: Number(productInputs[0].price),
           categoryId,
           subcategoryId,
-          storeId,
+          storeId: Number(storeId) || 0,
           imageUrls: productInputs[0].imageUrls.filter(url => url.trim() !== ""),
           active: true,
         };
-        axios.put(`http://localhost:8081/api/products/update/${id}`, payload, {
+        axios.put(`${BASE_URL}/api/products/update/${id}`, payload, {
           headers: { "Content-Type": "application/json" }
         })
           .then(() => {
             alert("Product Updated Successfully!");
-            navigate("/admin/adminpanel");
+            navigate("/admin/store");
           })
           .catch(error => console.error("Error updating product:", error));
       } else {
@@ -212,19 +236,19 @@ if (admin.id === null || admin.id === undefined) {
           prices: productInputs.map(product => Number(product.price)),
           categoryId,
           subcategoryId,
-          storeId,
+          storeId: Number(storeId) || 0,
           imageUrls: productInputs.map(product => product.imageUrls.filter(url => url.trim() !== "")),
         
         };
         
         console.log("Submitting Product Payload:", payload);
-        axios.post("http://localhost:8081/api/products/save-product", payload, {
+        axios.post(`${BASE_URL}/api/products/save-product`, payload, {
 
           headers: { "Content-Type": "application/json" }
         })
           .then(() => {
             alert("Product Saved Successfully!");
-            navigate("/admin/adminpanel");
+            navigate("/admin/store");
           })
           .catch(error => {
             console.error("Error saving product:", error);
@@ -273,6 +297,16 @@ if (admin.id === null || admin.id === undefined) {
       {/* Product form goes here */}
     {/* </div> */} */
       <form onSubmit={handleSubmit} className="bg-gray-100 rounded-2xl justify-self-center w-[70%] shadow-lg p-6 mt-6 space-y-6">
+       
+            <div className="flex items-center">
+          <label className="block w-60 text-lg">Select Store:</label>
+          <select value={selectedStore} onChange={handleStoreChange} className="w-full bg-gray-200 p-3 border rounded-lg">
+            <option value="">Select Store</option>
+            {stores.map(store => <option key={store.id} value={store.id}>{store.name}</option>)}
+          </select>
+        </div>
+
+       
         {/* Type Selection */}
         <div className="flex items-center">
           <label className="block w-60 text-lg">Select Type :</label>

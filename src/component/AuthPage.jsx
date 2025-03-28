@@ -27,6 +27,7 @@ function AuthPage() {
     const [isLogin, setIsLogin] = useState(true); // Toggle between Login & Register
     const [credentials, setCredentials] = useState({ email: "", password: "" });
     const navigate = useNavigate();
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const toggleForm = () => setIsLogin(!isLogin);
 
@@ -34,8 +35,8 @@ function AuthPage() {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const url = isLogin
-        ? "http://localhost:8081/admin/login"
-        : "http://localhost:8081/admin/register";
+        ? `${BASE_URL}/admin/login`
+        : `${BASE_URL}/admin/register`;
       
       const res = await axios.post(url, values, {
         headers: { "Content-Type": "application/json" },
@@ -44,7 +45,7 @@ function AuthPage() {
       if (isLogin) {
           alert("Logged in! Token: " + res.data.token);
         localStorage.setItem("admin", JSON.stringify(res.data));
-        navigate("/admin/adminpanel");
+        navigate("/admin/dashboard");
       } else {
         alert("Registered Successfully!");
         window.location.reload();
@@ -59,14 +60,14 @@ function AuthPage() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const res = await axios.post("http://localhost:8081/auth/google", {
+      const res = await axios.post(`${BASE_URL}/auth/google`, {
         token: credentialResponse.credential,
       });
 
       if (res.data.token) {
         alert("Google Login Successful!");
         localStorage.setItem("admin", JSON.stringify(res.data));
-        navigate("/admin/adminpanel");
+        navigate("/admin/dashboard");
       } else {
         alert("Google Login Failed!");
       }

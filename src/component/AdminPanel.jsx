@@ -7,12 +7,14 @@ import List from "./List";
 import Swal from "sweetalert2";
 import { Outlet } from "react-router-dom";
 
-import Papa from "papaparse"; // ✅ Import CSV Parser
+import Papa from "papaparse";
 import Store from "./Store";
 
 
 
 function AdminPanel() {
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -43,11 +45,11 @@ function AdminPanel() {
           reader.onload = (e) => {
             const csvData = e.target.result;
             const parsedData = Papa.parse(csvData, {
-              header: true, // ✅ Use first row as keys
+              header: true, 
               skipEmptyLines: true,
             });
 
-            resolve(parsedData.data); // ✅ Send parsed data
+            resolve(parsedData.data); 
           };
           reader.readAsText(file);
         });
@@ -58,7 +60,6 @@ function AdminPanel() {
       }
     });
   };
-  // ✅ Convert CSV data to correct format
   
 
   const handleDeleteAdmin = async () => {
@@ -114,13 +115,12 @@ function AdminPanel() {
     });
   };
   
-  // ✅ Function to Delete Admin & Products
   const deleteAdminAndProducts = async () => {
     try {
-      await axios.delete(`http://localhost:8081/admin/confirm-delete/${admin.id}`);
+      await axios.delete(`${BASE_URL}/admin/confirm-delete/${admin.id}`);
       Swal.fire("Deleted!", "Your account and all products have been deleted.", "success");
       localStorage.removeItem("admin");
-      window.location.href = "/login"; // Redirect to login page
+      window.location.href = "/auth"; 
     } catch (error) {
       const errorMessage = error.response?.data || "Failed to delete account.";
       Swal.fire("Error", String(errorMessage), "error");
@@ -249,15 +249,27 @@ function AdminPanel() {
 
         {/* Sidebar Navigation */}
         <ul className="flex-grow space-y-2">
-          <NavLink to="/admin/dashboard" className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
-            <FaProjectDiagram /> <span>Dashboard</span>
-          </NavLink>
-          <NavLink
-            to="/admin/store"
-            className="p-4 hover:bg-[#334155] cursor-pointer flex items-center space-x-3">
-          <FaUsers/> <span>Stores</span></NavLink>
-        
-        </ul>
+  <NavLink 
+    to="/admin/dashboard" 
+    className={({ isActive }) => 
+      `p-4 flex items-center space-x-3 cursor-pointer 
+       ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+    }
+  >
+    <FaProjectDiagram /> <span>Dashboard</span>
+  </NavLink>
+
+  <NavLink 
+    to="/admin/store" 
+    className={({ isActive }) => 
+      `p-4 flex items-center space-x-3 cursor-pointer 
+       ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+    }
+  >
+    <FaUsers /> <span>Stores</span>
+  </NavLink>
+</ul>
+
         <div className="p-4 border-t border-gray-600">
           <button onClick={() => handleUploadPopup()} className="text-green-500 hover:underline">
             Upload CSV

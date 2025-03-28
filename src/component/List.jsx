@@ -4,7 +4,7 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-function List() {
+function List({ storeId }) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -17,13 +17,18 @@ function List() {
   const DEFAULT_IMAGE = "https://dummyimage.com/150x150/ccc/000.png&text=No+Image";
   const location = useLocation();
   const [copySuccess, setCopySuccess] = useState(false);
-  const isAdminPanel = location.pathname.startsWith("/admin");
-  const navigate = useNavigate();
+  const isAdminPanel = location.pathname.startsWith("/admin/dashboard");
+    const navigate = useNavigate();
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [admin, setAdmin] = useState(() => {
     const storedAdmin = localStorage.getItem("admin");
     return storedAdmin ? JSON.parse(storedAdmin) : null;
   });
+
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  
+const params = new URLSearchParams(location.search);
+// const storeId = params.get("storeId"); // Get storeId from URL
 
 
   function CopyUrl() {
@@ -34,7 +39,12 @@ function List() {
     }).catch((err) => console.error("Error copying:", err));
   }
   useEffect(() => {
-    axios.get("http://localhost:8081/api/products/all")
+    let url =`${BASE_URL}/api/products/all`; 
+    if (storeId) {
+      url = `${BASE_URL}/api/stores/product/${storeId}`; 
+      console.log(storeId)   
+    } 
+    axios.get(url)
       .then(response => {
         console.log("API Response:", response.data);
         setProducts(response.data.products || []);
@@ -42,7 +52,11 @@ function List() {
         setCategories(response.data.categories || []);
         setSubCategories(response.data.subCategories || []);
         setLoading(false);
-
+        let allProducts = response.data.products || [];
+        console.log("Categories Data:", response.data.categories);
+      if (storeId) {
+        allProducts = allProducts.filter(product => product.storeId == storeId);
+      }
         console.log("location", location.pathname);
       })
       .catch(error => {
@@ -55,25 +69,32 @@ function List() {
   useEffect(() => {
     let filtered = products;
 
+  
+    if (storeId) {
+      filtered = filtered.filter(product => product.storeId == storeId);
+    }
+  
+    if (isAdminPanel && admin?.id) {
+      filtered = filtered.filter(product => product.adminid == admin.id);
+    }
+  
     if (searchQuery) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Filter by category
+  
     if (selectedCategory) {
       filtered = filtered.filter(product => product.categoryName === selectedCategory);
     }
-
-    // Filter by subcategory
+  
     if (selectedSubCategory) {
       filtered = filtered.filter(product => product.subCategoryName === selectedSubCategory);
     }
-
-    setFilteredProducts(filtered);
-  }, [searchQuery, selectedCategory, selectedSubCategory, products]);
-
+  
+    setFilteredProducts(filtered); 
+  }, [searchQuery, selectedCategory, selectedSubCategory, products, storeId, isAdminPanel, admin]);
+  
   useEffect(() => {
     if (selectedCategory) {
 
@@ -107,7 +128,7 @@ function List() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8081/admin/list/${id}`)
+          .delete(`${BASE_URL}/admin/list/${id}`)
           .then(() => {
             Swal.fire("Deleted!", "Your item has been deleted.", "success");
 
@@ -121,40 +142,36 @@ function List() {
             console.error("Error deleting product:", error);
             Swal.fire("Error!", "An error occurred while deleting the item.", "error");
           });
-        // Swal.fire("Deleted!", "Your item has been deleted.", "success");
       }
     });
   }
   const toggleProductStatus = async (productId) => {
     try {
-      // 🔥 Optimistic UI Update - Update Active Status Locally First
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId ? { ...product, active: !product.active } : product
-        )
-      );
-
-      // 📡 Send API request to backend
-      await axios.put(`http://localhost:8081/api/products/toggle-active/${productId}`);
-
-      // 🔄 Fetch the updated product list after successful toggle
-      const response = await axios.get("http://localhost:8081/api/products/all");
-      setProducts(response.data.products || []);
-      setFilteredProducts(response.data.products || []);
-
-      console.log("Product status updated successfully!", response.data);
+      console.log("Toggling product status for ID:", productId);
+  
+      // 🔄 Step 1: Send API request and store response
+      const response = await axios.put(`${BASE_URL}/api/products/toggle-active/${productId}`);
+      console.log("Product status toggled successfully!", response.data);
+  
+      // 🔄 Step 2: Fetch updated product list
+      let url = `${BASE_URL}/api/products/all`;
+      if (storeId) {
+        url = `${BASE_URL}/api/stores/product/${storeId}`;
+      }
+  
+      const updatedResponse = await axios.get(url);
+      console.log("Updated Products:", updatedResponse.data);
+  
+      // 🔄 Step 3: Update state with new product data
+      setProducts(updatedResponse.data.products || []);
+      setFilteredProducts(updatedResponse.data.products || []);
+  
     } catch (error) {
       console.error("Error updating product status:", error);
       alert("Failed to update product status. Please try again.");
-
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId ? { ...product, active: !product.active } : product
-        )
-      );
     }
   };
-
+  
 
 
 
@@ -166,9 +183,9 @@ function List() {
       {/* header sections  */}
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl font-extrabold p-2 text-gray-800">📦 Product List</h1>
-        <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span>
+        {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}
 
-        {location.pathname === "/admin/adminpanel" && (
+        {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
           <Link
             to={`/add`}
             className="mt-4 md:mt-0 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition"
@@ -193,7 +210,11 @@ function List() {
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value=""> All Categories</option>
-          {categories.map((category) => (
+          {categories
+              .filter(category => 
+                storeId ? parseInt(category.storeid) === parseInt(storeId) : true
+              )
+          .map((category) => (
             <option key={category.id} value={category.name}>{category.name}</option>
           ))}
         </select>
@@ -232,15 +253,17 @@ function List() {
       <div className="mt-8 grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredProducts.length > 0 ? (
           filteredProducts
-            .filter(product => isAdminPanel || product.active)
+            .filter(product => isAdminPanel || location.pathname.startsWith("/store/") || product.active)
             .filter(product =>
               isAdminPanel ? product.adminid == admin?.id : true
             )
+            .filter(product => storeId ? parseInt(product.storeid) === parseInt(storeId) : true)
+
             .map(product => (
 
               <div key={product.id} className="bg-white p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
-                <span>{product.adminid}</span>
-                <span>admin{admin?.id}</span>
+                {/* <span>{product.adminid}</span>
+                <span>admin{admin?.id}</span> */}
 
                 {/* Product Name */}
                 <h2 className="text-xl font-bold text-gray-800 flex justify-between items-center">
@@ -249,7 +272,7 @@ function List() {
 
                   </div>
                   <div>
-                    {location.pathname === "/admin/adminpanel" && (
+                  {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
                       <div className="flex">
 
                         <span title={product.active ? "Disable Product" : "Enable Product"}>
@@ -276,13 +299,17 @@ function List() {
 
 
                         </span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                          width="24" height="24" viewBox="0 0 24 24"
-                          onClick={() => navigate(`/add/${product.id}`)}
-                          fill="none" stroke="currentColor" strokeWidth={2}
-                          className="lucide  lucide-file-pen-line">
-                          <path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
-                          <path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /><path d="M8 18h1" /></svg>
+                        {storeId && ( // 🔥 Only show Edit button when storeId is present in URL
+  <svg xmlns="http://www.w3.org/2000/svg"
+    width="24" height="24" viewBox="0 0 24 24"
+    onClick={() => navigate(`/add/${product.id}?storeId=${storeId}`)}
+    fill="none" stroke="currentColor" strokeWidth={2}
+    className="lucide  lucide-file-pen-line">
+    <path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
+    <path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+    <path d="M8 18h1" />
+  </svg>
+)}
 
 
                         <svg

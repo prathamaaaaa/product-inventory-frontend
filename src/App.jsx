@@ -24,6 +24,7 @@ function App() {
         <Route path="/createstore" element={<CreateStore />} />
         {/* <Route path="/store" element={<Store />} /> */}
         <Route path="/store/:id" element={<StoreDetail />} /> 
+        <Route path="/list" element={<List />} /> 
 
         <Route path="/admin" element={<AdminPanel />}>
           <Route index element={<Navigate to="/admin/dashboard" />} />  {/* Default to Dashboard */}

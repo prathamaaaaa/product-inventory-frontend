@@ -12,6 +12,7 @@ function Detail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const location = useLocation();
 
@@ -25,7 +26,7 @@ function Detail() {
     }).catch((err) => console.error("Error copying:", err));
   }
   useEffect(() => {
-    axios.get(`http://localhost:8081/api/products/${id}`)
+    axios.get(`${BASE_URL}/api/products/${id}`)
       .then(response => {
         setProduct(response.data);
         setSelectedImage(response.data.imageUrls?.[0] || "https://dummyimage.com/400x400/ccc/000.png&text=No+Image");
@@ -56,7 +57,7 @@ function Detail() {
 
         {location.pathname.startsWith("/detail/") && (
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(-1)}
             className="text-primary ml-[5%] hover:underline"
           >
             ← Back to List
@@ -112,7 +113,7 @@ function Detail() {
                 {product.details}
               </p>
               {copySuccess && (
-                <div className="fixed bottom-16 right-16 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg transition-opacity">
+                <div className="fixed top-16 right-10 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg transition-opacity">
                   URL Copied..!!
                 </div>
               )}

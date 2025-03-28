@@ -5,6 +5,8 @@ import { useParams, useNavigate } from "react-router-dom";
 
 
 function CreateStore() {
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   const [storeName, setStoreName] = useState("");
   const [admin, setAdmin] = useState(null);
   const navigate = useNavigate();
@@ -31,7 +33,7 @@ function CreateStore() {
     }
 
     try {
-      const response = await axios.post("http://localhost:8081/api/stores/add", {
+      const response = await axios.post(`${BASE_URL}/api/stores/add`, {
         name: storeName,
         adminid: admin.id,
       });
