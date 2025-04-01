@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { FaTasks, FaUsers, FaProjectDiagram, FaBars, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useNavigate,useLocation  ,NavLink } from "react-router-dom";
+import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import axios from "axios";
-import List from "./List";
 import Swal from "sweetalert2";
 import { Outlet } from "react-router-dom";
 
 import Papa from "papaparse";
-import Store from "./Store";
 
-
+import { useTranslation } from "react-i18next";
+import { Globe, ChevronDown } from "lucide-react";
+import i18n from "./i18n";
 
 function AdminPanel() {
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    setIsOpen(false);
+    localStorage.setItem("language", lng);
+
+  };
+
+
+
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
@@ -24,59 +38,22 @@ function AdminPanel() {
   const location = useLocation();
 
 
-  const handleUploadPopup = () => {
-    Swal.fire({
-      title: "Upload Product CSV",
-      input: "file",
-      inputAttributes: {
-        accept: ".csv",
-      },
-      showCancelButton: true,
-      confirmButtonText: "Upload",
-      preConfirm: (file) => {
-        return new Promise((resolve, reject) => {
-          if (!file) {
-            Swal.showValidationMessage("Please select a CSV file");
-            return reject();
-          }
-
-          // ✅ Parse CSV
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const csvData = e.target.result;
-            const parsedData = Papa.parse(csvData, {
-              header: true, 
-              skipEmptyLines: true,
-            });
-
-            resolve(parsedData.data); 
-          };
-          reader.readAsText(file);
-        });
-      },
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        handleCSVUpload(result.value);
-      }
-    });
-  };
-  
-
   const handleDeleteAdmin = async () => {
+
     if (!admin || !admin.id) {
-      Swal.fire("Error", "Admin ID not found.", "error");
+      Swal.fire(t("error"), t("adminIDNotFound"),t("error"));
       return;
     }
-  
+
     Swal.fire({
-      title: "Do you want to save your data before deleting?",
-      text: "A CSV file will be downloaded before deletion.",
+      title: t("doYouWantToSave"),
+      text: t("csvWillBeDownloaded"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#28a745",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Download & Delete",
-      cancelButtonText: "No, Just Delete",
+      confirmButtonText: t("yesDownloadDelete"),
+      cancelButtonText: t("noJustDelete"),
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -84,12 +61,12 @@ function AdminPanel() {
           const response = await axios.get(`http://localhost:8081/admin/download-csv/${admin.id}`, {
             responseType: "blob", // Important for file downloads
           });
-  
+
           if (response.status === 400) {
-            Swal.fire("Error", "No products found for this admin.", "error");
+            Swal.fire(t("error"),t("noProductsFound"),t("error"),);
             return;
           }
-  
+
           // ✅ Create a Blob and trigger download
           const url = window.URL.createObjectURL(new Blob([response.data]));
           const link = document.createElement("a");
@@ -98,14 +75,14 @@ function AdminPanel() {
           document.body.appendChild(link);
           link.click();
           link.parentNode.removeChild(link);
-  
-          Swal.fire("Success!", "Your product data has been downloaded as a CSV file.", "success");
-  
+
+          Swal.fire(t("success"),t("downloadSuccess"),t("success"));
+
           // ✅ After successful CSV download, delete the admin and products
           await deleteAdminAndProducts();
-  
+
         } catch (error) {
-          const errorMessage = error.response?.data || "Failed to download CSV file.";
+          const errorMessage = error.response?.data || t("failedToDownload");
           Swal.fire("Error", String(errorMessage), "error");
         }
       } else {
@@ -114,65 +91,19 @@ function AdminPanel() {
       }
     });
   };
-  
+
   const deleteAdminAndProducts = async () => {
     try {
       await axios.delete(`${BASE_URL}/admin/confirm-delete/${admin.id}`);
-      Swal.fire("Deleted!", "Your account and all products have been deleted.", "success");
+      Swal.fire("Error", t("errorAdminIdNotFound"), "error");
       localStorage.removeItem("admin");
-      window.location.href = "/auth"; 
+      window.location.href = "/auth";
     } catch (error) {
-      const errorMessage = error.response?.data || "Failed to delete account.";
+      const errorMessage = error.response?.data || t("failedToDelete");
       Swal.fire("Error", String(errorMessage), "error");
     }
   };
 
-
-
-
-  const handleCSVUpload = async (csvData) => {
-    if (!admin || !admin.id) {
-      Swal.fire("Error", "Admin ID not found. Please log in again.", "error");
-      return;
-    }
-  
-    const payload = csvData.map((row, index) => {
-      const categoryId = row["Category ID"] ? parseInt(row["Category ID"]) : null;
-      const subcategoryId = row["Subcategory ID"] ? parseInt(row["Subcategory ID"]) : null;
-  
-      if (!categoryId || !subcategoryId) {
-        console.error(`❌ Missing Category/Subcategory for row ${index + 1}:`, row);
-      }
-  
-      return {
-        name: row["Product Name"] || "",
-        details: row["Details"] || "",
-        price: parseFloat(row["Price"] || 0),
-        imageUrls: row["Image URLs"] ? row["Image URLs"].split(" | ") : [],
-        adminId: admin.id,
-        categoryId,
-        subcategoryId,
-      };
-    });
-  
-    // Check for missing category/subcategory before sending
-    const missingFields = payload.some(p => !p.categoryId || !p.subcategoryId);
-    if (missingFields) {
-      Swal.fire("Error", "Some products are missing category or subcategory ID. Check console logs.", "error");
-      return;
-    }
-  
-    try {
-      await axios.post("http://localhost:8081/api/products/upload-csv", payload, {
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      Swal.fire("Success!", "Products uploaded successfully.", "success");
-    } catch (error) {
-      Swal.fire("Error", error.response?.data || "Failed to upload products.", "error");
-    }
-  };
-  
   useEffect(() => {
     const handleResize = () => {
       setIsSidebarOpen(window.innerWidth >= 1024);
@@ -192,8 +123,9 @@ function AdminPanel() {
     }
   }, [navigate]);
 
-  
+
   useEffect(() => {
+
     const fetchData = async () => {
       try {
         const res = await axios.get("http://localhost:8081/api/products/all");
@@ -210,35 +142,40 @@ function AdminPanel() {
 
 
   const handleLogout = () => {
+
     Swal.fire({
-      title: "Are you sure?",
-      text: "You will be logged out!",
+      title: t("areYouSure"),
+      text: t("willBeLoggedOut"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, logout!",
+      confirmButtonText: t("yesLogout"),
     }).then((result) => {
       if (result.isConfirmed) {
-        // Perform logout actions
+
         localStorage.removeItem("admin");
-        window.location.href = "/login"; // Redirect to login page
+        delete axios.defaults.headers.common["Authorization"];
+
+        window.location.href = "/auth";
       }
     });
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
+      <div>
+
+      </div>
       {/* Sidebar - Responsive & Scrollable */}
       <motion.div
         animate={{ width: isSidebarOpen ? "16rem" : "0" }}
-        className={`bg-[#1E3A8A] text-white flex flex-col fixed h-screen overflow-y-auto z-50 transition-all duration-300 ${
-          isSidebarOpen ? "left-0" : "-left-64"
-        }`}
+        className={`bg-[#1E3A8A] text-white flex flex-col fixed h-screen overflow-y-auto z-50 transition-all duration-300 ${isSidebarOpen ? "left-0" : "-left-64"
+          }`}
       >
         {/* Sidebar Header */}
         <div className="p-5 flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Dash UI</h2>
+          <h2 className="text-2xl font-bold">{t("dashUI")}</h2>
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-white focus:outline-none"
@@ -249,42 +186,38 @@ function AdminPanel() {
 
         {/* Sidebar Navigation */}
         <ul className="flex-grow space-y-2">
-  <NavLink 
-    to="/admin/dashboard" 
-    className={({ isActive }) => 
-      `p-4 flex items-center space-x-3 cursor-pointer 
+          <NavLink
+            to="/admin/dashboard"
+            className={({ isActive }) =>
+              `p-4 flex items-center space-x-3 cursor-pointer 
        ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
-    }
-  >
-    <FaProjectDiagram /> <span>Dashboard</span>
-  </NavLink>
+            }
+          >
+            <FaProjectDiagram /> <span>{t("dashboard")}</span>
+          </NavLink>
 
-  <NavLink 
-    to="/admin/store" 
-    className={({ isActive }) => 
-      `p-4 flex items-center space-x-3 cursor-pointer 
+          <NavLink
+            to="/admin/store"
+            className={({ isActive }) =>
+              `p-4 flex items-center space-x-3 cursor-pointer 
        ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
-    }
-  >
-    <FaUsers /> <span>Stores</span>
-  </NavLink>
-</ul>
+            }
+          >
+            <FaUsers /> <span>{t("stores")}</span>
+          </NavLink>
+        </ul>
+
 
         <div className="p-4 border-t border-gray-600">
-          <button onClick={() => handleUploadPopup()} className="text-green-500 hover:underline">
-            Upload CSV
+          <button onClick={handleDeleteAdmin} className="text-red-600 hover:underline">
+            {t("deleteAccount")}
           </button>
         </div>
         <div className="p-4 border-t border-gray-600">
-  <button onClick={handleDeleteAdmin} className="text-red-600 hover:underline">
-    Delete your Acount
-  </button>
-</div>
-        <div className="p-4 border-t border-gray-600">
-  <button onClick={handleLogout} className="text-red-600 hover:underline">
-    Logout
-  </button>
-</div>
+          <button onClick={handleLogout} className="text-red-600 hover:underline">
+            {t("logout")}
+          </button>
+        </div>
 
       </motion.div>
 
@@ -299,8 +232,48 @@ function AdminPanel() {
             <FaBars size={24} />
           </button>
 
-          <h2 className="text-xl font-bold">Admin Dashboard</h2>
+          <h2 className="text-xl font-bold">{t("adminDashboard")}</h2>
+          <div className="relative inline-block">
+            {/* Icon button to toggle dropdown */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+            >
+              {t("selectLanguage")}
+              <Globe className="w-5 ml-2 h-5 mr-1" />
+              <ChevronDown className="w-4 h-4" />
+            </button>
 
+            {/* Language dropdown */}
+            {isOpen && (
+              <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
+                <button
+                  onClick={() => changeLanguage("en")}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  English
+                </button>
+                <button
+                  onClick={() => changeLanguage("es")}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  Español
+                </button>
+                <button
+                  onClick={() => changeLanguage("hi")}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  Hindi
+                </button>
+                <button
+                  onClick={() => changeLanguage("guj")}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  Gujarati
+                </button>
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-4">
             <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span>
             <span className="text-gray-700 font-medium">{admin?.id || "Loading..."}</span>
@@ -316,7 +289,7 @@ function AdminPanel() {
               whileHover={{ scale: 1.05 }}
             >
               <FaProjectDiagram className="text-6xl text-blue-500" />
-              <h3 className="text-2xl font-semibold mt-2">Products</h3>
+              <h3 className="text-2xl font-semibold mt-2">{t("products")}</h3>
               <p className="text-gray-600 text-5xl font-semibold mt-4">{products.length}</p>
             </motion.div>
 
@@ -325,7 +298,7 @@ function AdminPanel() {
               whileHover={{ scale: 1.05 }}
             >
               <FaTasks className="text-6xl text-green-500" />
-              <h3 className="text-2xl font-semibold mt-2">Categories</h3>
+              <h3 className="text-2xl font-semibold mt-2">{t("categories")}</h3>
               <p className="text-gray-600 text-5xl font-semibold mt-4">{categories.length}</p>
             </motion.div>
 
@@ -334,15 +307,15 @@ function AdminPanel() {
               whileHover={{ scale: 1.05 }}
             >
               <FaUsers className="text-6xl text-yellow-500" />
-              <h3 className="text-2xl font-semibold mt-2">Sub Categories</h3>
+              <h3 className="text-2xl font-semibold mt-2"> {t("subCategories")}</h3>
               <p className="text-gray-600 text-5xl font-semibold mt-4">{subCategories.length}</p>
             </motion.div>
           </div>
         </div>
-        
+
         {/* Product List Section */}
         <Outlet />
-        </div>
+      </div>
     </div>
   );
 }

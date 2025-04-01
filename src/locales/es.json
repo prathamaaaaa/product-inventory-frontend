@@ -1,0 +1,24 @@
+{
+    "welcome": "Bienvenido",
+    "productList": "📦 Lista de Productos",
+    "addProduct": "➕ Agregar Producto",
+    "searchPlaceholder": "🔍 Buscar producto...",
+    "allCategories": "Todas las categorías",
+    "allSubcategories": "Todas las subcategorías",
+    "reset": "Restablecer",
+    "loading": "Cargando...",
+    "errorLoading": "Error al cargar productos. Inténtelo de nuevo más tarde.",
+    "price": "💰 Precio:",
+    "category": "📂 Categoría:",
+    "subcategory": "📁 Subcategoría:",
+    "viewDetails": "🔍 Ver detalles",
+    "deleteConfirmation": "¿Estás seguro?",
+    "deleteWarning": "¡No podrás revertir esto!",
+    "deleteSuccess": "¡Eliminado!",
+    "deleteMessage": "Su artículo ha sido eliminado.",
+    "deleteError": "Error al eliminar el producto.",
+    "copyUrl": "Copiar URL",
+    "copySuccess": "¡URL copiada con éxito!",
+      "admindashboard": "Admin Dashboard apns"
+  }
+  

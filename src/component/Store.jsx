@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-
+import { useTranslation } from "react-i18next";
 function Store() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -10,6 +10,7 @@ function Store() {
   const [stores, setStores] = useState([]);
   const [productCounts, setProductCounts] = useState({});
   const [copySuccess, setCopySuccess] = useState(false);
+const { t } = useTranslation();
 
   useEffect(() => {
     const storedAdmin = localStorage.getItem("admin");
@@ -20,6 +21,8 @@ function Store() {
   }, []);
 
   useEffect(() => {
+    const token = JSON.parse(localStorage.getItem("admin"))?.token; 
+    console.log("Token:", token);
     if (admin) {
       axios.get(`${BASE_URL}/api/stores/admin/${admin}`)
         .then((response) => {
@@ -44,7 +47,6 @@ function Store() {
     }
   }, [admin]);
 
-  // ✅ Copy Store URL to Clipboard
   function CopyUrl(storeId) {
     const storeUrl = `${window.location.origin}/store/${storeId}`;
     navigator.clipboard.writeText(storeUrl)
@@ -55,7 +57,6 @@ function Store() {
       .catch((err) => console.error("Error copying:", err));
   }
 
-  // ✅ Download CSV for a Store
   const handleDownloadCSV = (storeId) => {
     axios.get(`${BASE_URL}/api/stores/download-csv/${storeId}`, { responseType: "blob" })
       .then(response => {
@@ -74,7 +75,6 @@ function Store() {
       });
   };
 
-  // ✅ Delete Store Function
   const handleDeleteStore = (storeId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -101,15 +101,14 @@ function Store() {
 
   return (
     <div className="min-h-screen p-8 bg-gray-100">
-      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">🏪 Your Stores</h1>
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">{t("title")}</h1>
 
       <div className="flex justify-center space-x-4">
         <Link to="/add" className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition">
-          ➕ Add Product
+         {t("addProduct")}
         </Link>
         <Link to="/createstore" className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition">
-          ➕ Create Store
-        </Link>
+{t("createStore")}        </Link>
       </div>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -144,31 +143,32 @@ function Store() {
                 </svg>
               </button>
 
-              {/* ⬇️ Download CSV Button */}
-              <button
+            <div className="p-4 rounded-lg mt-4">
+            <button
                 onClick={() => handleDownloadCSV(store.id)}
-                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full"
+                className="mt-4 bg-gray-300  px-4 py-2 rounded-lg hover:bg-gray-400 w-full"
               >
-                ⬇️ Download CSV
+            {t("downloadCSV")}
               </button>
 
               {/* 🗑 Delete Store Button */}
               <button
                 onClick={() => handleDeleteStore(store.id)}
-                className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 w-full"
+                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-300 w-full"
               >
-                🗑 Delete Store
+                        {t("deleteStore")}
               </button>
+            </div>
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-600 col-span-full">No stores found. Create a new one!</p>
+          <p className="text-center text-gray-600 col-span-full">{t("noStores")}</p>
         )}
       </div>
 
       {copySuccess && (
         <div className="fixed bottom-[10%] right-16 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg transition-opacity">
-          Store URL Copied!
+             {t("storeCopied")}
         </div>
       )}
     </div>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useParams, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
 
 function CreateStore() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const { t } = useTranslation();
 
   const [storeName, setStoreName] = useState("");
   const [admin, setAdmin] = useState(null);
@@ -39,7 +41,7 @@ function CreateStore() {
       });
 
       Swal.fire("Success!", "Store created successfully!", "success");
-      setStoreName(""); // Clear input after submission
+      navigate("/admin/store"); 
     } catch (error) {
       Swal.fire("Error", error.response?.data || "Failed to create store", "error");
     }
@@ -50,16 +52,18 @@ function CreateStore() {
    <>
    
     <div>
-    <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
-    ← Back to List
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
+ <div className="flex self-start mb-14 ml-[20%] ">
+ <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
+ {t("backToList")} 
   </button>
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Create Store</h2>
+ </div>
+      <div className="bg-white p-6 rounded-lg shadow-md w-full sm:w-[60%]  lg:w-[35%] ">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">{t("createStore")} </h2>
         {admin ? (
 <div>
-<p className="text-gray-600 text-center mb-4">Admin ID: {admin.id}</p>
-<p className="text-gray-600 text-center mb-4">Admin ID: {admin.name}</p>
+{/* <p className="text-gray-600 text-center mb-4">Admin ID: {admin.id}</p>
+<p className="text-gray-600 text-center mb-4">Admin ID: {admin.name}</p> */}
 
 </div>          
         ) : (
@@ -68,13 +72,13 @@ function CreateStore() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium">Store Name</label>
+            <label className="block text-gray-700 mb-4 font-medium">{t("storeName")} </label>
             <input
               type="text"
-              placeholder="Enter Store Name"
+              placeholder={t("storeName")}
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 mb-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -82,8 +86,7 @@ function CreateStore() {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg shadow-md hover:bg-blue-700 transition"
           >
-            Create Store
-          </button>
+{t("create")}          </button>
         </form>
       </div>
     </div>

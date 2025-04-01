@@ -3,8 +3,22 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
+import { Globe, ChevronDown } from "lucide-react";
 
 function List({ storeId }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    setIsOpen(false); 
+    localStorage.setItem("language", lng);
+
+  };
+  const language = localStorage.getItem("language") || "en";
+
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -18,7 +32,7 @@ function List({ storeId }) {
   const location = useLocation();
   const [copySuccess, setCopySuccess] = useState(false);
   const isAdminPanel = location.pathname.startsWith("/admin/dashboard");
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [admin, setAdmin] = useState(() => {
     const storedAdmin = localStorage.getItem("admin");
@@ -26,9 +40,9 @@ function List({ storeId }) {
   });
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
-  
-const params = new URLSearchParams(location.search);
-// const storeId = params.get("storeId"); // Get storeId from URL
+
+  const params = new URLSearchParams(location.search);
+  // const storeId = params.get("storeId"); // Get storeId from URL
 
 
   function CopyUrl() {
@@ -39,11 +53,11 @@ const params = new URLSearchParams(location.search);
     }).catch((err) => console.error("Error copying:", err));
   }
   useEffect(() => {
-    let url =`${BASE_URL}/api/products/all`; 
+    let url = `${BASE_URL}/api/products/all`;
     if (storeId) {
-      url = `${BASE_URL}/api/stores/product/${storeId}`; 
-      console.log(storeId)   
-    } 
+      url = `${BASE_URL}/api/stores/product/${storeId}`;
+      console.log(storeId)
+    }
     axios.get(url)
       .then(response => {
         console.log("API Response:", response.data);
@@ -54,9 +68,9 @@ const params = new URLSearchParams(location.search);
         setLoading(false);
         let allProducts = response.data.products || [];
         console.log("Categories Data:", response.data.categories);
-      if (storeId) {
-        allProducts = allProducts.filter(product => product.storeId == storeId);
-      }
+        if (storeId) {
+          allProducts = allProducts.filter(product => product.storeId == storeId);
+        }
         console.log("location", location.pathname);
       })
       .catch(error => {
@@ -69,32 +83,32 @@ const params = new URLSearchParams(location.search);
   useEffect(() => {
     let filtered = products;
 
-  
+
     if (storeId) {
       filtered = filtered.filter(product => product.storeId == storeId);
     }
-  
+
     if (isAdminPanel && admin?.id) {
       filtered = filtered.filter(product => product.adminid == admin.id);
     }
-  
+
     if (searchQuery) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-  
+
     if (selectedCategory) {
       filtered = filtered.filter(product => product.categoryName === selectedCategory);
     }
-  
+
     if (selectedSubCategory) {
       filtered = filtered.filter(product => product.subCategoryName === selectedSubCategory);
     }
-  
-    setFilteredProducts(filtered); 
+
+    setFilteredProducts(filtered);
   }, [searchQuery, selectedCategory, selectedSubCategory, products, storeId, isAdminPanel, admin]);
-  
+
   useEffect(() => {
     if (selectedCategory) {
 
@@ -113,8 +127,8 @@ const params = new URLSearchParams(location.search);
   }, [selectedCategory, subCategories, products]);
 
 
-  if (loading) return <p className="text-center text-lg">Loading...</p>;
-  if (error) return <p className="text-center text-red-500">Error loading products. Try again later.</p>;
+  if (loading) return <p className="text-center text-lg">{t("loading")}</p>;
+  if (error) return <p className="text-center text-red-500">{t("errorLoading")}</p>;
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -130,7 +144,7 @@ const params = new URLSearchParams(location.search);
         axios
           .delete(`${BASE_URL}/admin/list/${id}`)
           .then(() => {
-            Swal.fire("Deleted!", "Your item has been deleted.", "success");
+            Swal.fire(t("deleteSuccess"), t("deleteMessage"), "success");
 
             setProducts((prevProducts) => prevProducts.filter((p) => p.id !== id));
             setFilteredProducts((prevFiltered) => prevFiltered.filter((p) => p.id !== id));
@@ -148,30 +162,28 @@ const params = new URLSearchParams(location.search);
   const toggleProductStatus = async (productId) => {
     try {
       console.log("Toggling product status for ID:", productId);
-  
+
       // 🔄 Step 1: Send API request and store response
       const response = await axios.put(`${BASE_URL}/api/products/toggle-active/${productId}`);
       console.log("Product status toggled successfully!", response.data);
-  
-      // 🔄 Step 2: Fetch updated product list
+
       let url = `${BASE_URL}/api/products/all`;
       if (storeId) {
         url = `${BASE_URL}/api/stores/product/${storeId}`;
       }
-  
+
       const updatedResponse = await axios.get(url);
       console.log("Updated Products:", updatedResponse.data);
-  
-      // 🔄 Step 3: Update state with new product data
+
       setProducts(updatedResponse.data.products || []);
       setFilteredProducts(updatedResponse.data.products || []);
-  
+
     } catch (error) {
       console.error("Error updating product status:", error);
       alert("Failed to update product status. Please try again.");
     }
   };
-  
+
 
 
 
@@ -182,7 +194,50 @@ const params = new URLSearchParams(location.search);
 
       {/* header sections  */}
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
-        <h1 className="text-3xl font-extrabold p-2 text-gray-800">📦 Product List</h1>
+        <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
+        <div>
+        <div className="relative inline-block">
+      {/* Icon button to toggle dropdown */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+        >
+        select Language
+        <Globe className="w-5 ml-2 h-5 mr-1" />
+        <ChevronDown className="w-4 h-4" />
+      </button>
+
+      {/* Language dropdown */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
+          <button
+            onClick={() => changeLanguage("en")}
+            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+          >
+            English
+          </button>
+          <button
+            onClick={() => changeLanguage("es")}
+            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+          >
+             Español
+          </button>
+          <button
+            onClick={() => changeLanguage("hi")}
+            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+          >
+             Hindi
+          </button>
+          <button
+            onClick={() => changeLanguage("guj")}
+            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+          >
+             Gujarati
+          </button>
+        </div>
+      )}
+    </div>
+    </div>
         {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}
 
         {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
@@ -190,7 +245,7 @@ const params = new URLSearchParams(location.search);
             to={`/add`}
             className="mt-4 md:mt-0 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition"
           >
-            ➕ Add Product
+            {t("addProduct")}
           </Link>
         )}
       </div>
@@ -198,7 +253,7 @@ const params = new URLSearchParams(location.search);
       <div className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-4">
         <input
           type="text"
-          placeholder="🔍 Search product..."
+          placeholder={t('searchPlaceholder')}
           className="p-2 border border-gray-300 rounded-lg w-full md:w-1/3"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -209,14 +264,14 @@ const params = new URLSearchParams(location.search);
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
-          <option value=""> All Categories</option>
+          <option value=""> {t("allCategories")}</option>
           {categories
-              .filter(category => 
-                storeId ? parseInt(category.storeid) === parseInt(storeId) : true
-              )
-          .map((category) => (
-            <option key={category.id} value={category.name}>{category.name}</option>
-          ))}
+            .filter(category =>
+              storeId ? parseInt(category.storeid) === parseInt(storeId) : true
+            )
+            .map((category) => (
+              <option key={category.id} value={category.name}>{category.name}</option>
+            ))}
         </select>
 
         {/*  SubCategory Dropdown */}
@@ -226,13 +281,11 @@ const params = new URLSearchParams(location.search);
           onChange={(e) => setSelectedSubCategory(e.target.value)}
           disabled={!selectedCategory}
         >
-          <option value="">All Subcategories</option>
+          <option value="">{t("allSubcategories")}</option>
           {filteredSubCategories.map((subCategory) => (
             <option key={subCategory.id} value={subCategory.name}>{subCategory.name}</option>
           ))}
         </select>
-
-
 
         {/* Reset Button */}
         <button
@@ -243,7 +296,7 @@ const params = new URLSearchParams(location.search);
             setSelectedSubCategory("");
           }}
         >
-          Reset
+          {t("reset")}
         </button>
       </div>
 
@@ -261,18 +314,20 @@ const params = new URLSearchParams(location.search);
 
             .map(product => (
 
-              <div key={product.id} className="bg-white p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
+              <div key ={product.id} className="bg-white p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
                 {/* <span>{product.adminid}</span>
                 <span>admin{admin?.id}</span> */}
 
                 {/* Product Name */}
                 <h2 className="text-xl font-bold text-gray-800 flex justify-between items-center">
                   <div>
-                    <span className="ml-2">{product.name}</span>
-
+                    {/* <span className="ml-2">{product.name}</span> */}
+                    <span className="ml-2">
+                    {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
+                    </span>
                   </div>
                   <div>
-                  {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
+                    {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
                       <div className="flex">
 
                         <span title={product.active ? "Disable Product" : "Enable Product"}>
@@ -299,37 +354,41 @@ const params = new URLSearchParams(location.search);
 
 
                         </span>
-                        {storeId && ( // 🔥 Only show Edit button when storeId is present in URL
-  <svg xmlns="http://www.w3.org/2000/svg"
-    width="24" height="24" viewBox="0 0 24 24"
-    onClick={() => navigate(`/add/${product.id}?storeId=${storeId}`)}
-    fill="none" stroke="currentColor" strokeWidth={2}
-    className="lucide  lucide-file-pen-line">
-    <path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
-    <path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
-    <path d="M8 18h1" />
-  </svg>
-)}
+                        <span title="Edit Product">
+                          {storeId && (
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                              width="24" height="24" viewBox="0 0 24 24"
+                              onClick={() => navigate(`/add/${product.id}?storeId=${storeId}`)}
+                              fill="none" stroke="currentColor" strokeWidth={2}
+                              className="lucide  lucide-file-pen-line">
+                              <path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
+                              <path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                              <path d="M8 18h1" />
+                            </svg>
+                          )}
+                        </span>
 
 
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          onClick={() => handleDelete(product.id)}  // Ensure product.id is passed correctly
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          className="lucide text-red-600 lucide-trash-2 cursor-pointer"
-                        >
-                          <path d="M3 6h18" />
-                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                          <line x1="10" x2="10" y1="11" y2="17" />
-                          <line x1="14" x2="14" y1="11" y2="17" />
-                        </svg>
+                        <span title="Delete Product">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            onClick={() => handleDelete(product.id)}  // Ensure product.id is passed correctly
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            className="lucide text-red-600 lucide-trash-2 cursor-pointer"
+                          >
+                            <path d="M3 6h18" />
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                            <line x1="10" x2="10" y1="11" y2="17" />
+                            <line x1="14" x2="14" y1="11" y2="17" />
+                          </svg>
 
+                        </span>
                       </div>
                     )}
                   </div>
@@ -337,9 +396,9 @@ const params = new URLSearchParams(location.search);
 
                 {/* Product Details */}
                 <div className="text-sm text-gray-600 mt-3 space-y-2">
-                  <p><strong>💰 Price:</strong> ${product.price}</p>
-                  <p><strong>📂 Category:</strong> {product.categoryName || "N/A"}</p>
-                  <p><strong>📁 SubCategory:</strong> {product.subCategoryName || "N/A"}</p>
+                  <p><strong>{t("price")}</strong> ${product.price}</p>
+                  <p><strong>{t("category")}</strong> {product.categoryName || "N/A"}</p>
+                  <p><strong>{t("subcategory")}</strong> {product.subCategoryName || "N/A"}</p>
                 </div>
 
                 {/* View Details Button */}
@@ -347,7 +406,7 @@ const params = new URLSearchParams(location.search);
                   to={isAdminPanel ? `/admin/detail/${product.id}` : `/detail/${product.id}`}
                   className="text-indigo-500 font-semibold hover:underline"
                 >
-                  🔍 View Details
+{t("viewDetails")}
                 </Link>
 
                 {/* Product Image */}
@@ -379,8 +438,7 @@ const params = new URLSearchParams(location.search);
       </button>
       {copySuccess && (
         <div className="fixed bottom-16 right-16 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg transition-opacity">
-          URL Copied..!!
-        </div>
+{t("copyUrl")}        </div>
       )}
 
     </div>

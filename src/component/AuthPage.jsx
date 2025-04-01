@@ -45,6 +45,8 @@ function AuthPage() {
       if (isLogin) {
           alert("Logged in! Token: " + res.data.token);
         localStorage.setItem("admin", JSON.stringify(res.data));
+        axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+
         navigate("/admin/dashboard");
       } else {
         alert("Registered Successfully!");
@@ -67,6 +69,7 @@ function AuthPage() {
       if (res.data.token) {
         alert("Google Login Successful!");
         localStorage.setItem("admin", JSON.stringify(res.data));
+        axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
         navigate("/admin/dashboard");
       } else {
         alert("Google Login Failed!");

@@ -12,7 +12,7 @@ function Add() {
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [categoryInputs, setCategoryInputs] = useState([""]);
   const [subcategoryInputs, setSubcategoryInputs] = useState([""]);
-  const [productInputs, setProductInputs] = useState([{ name: "", details: "", price: "", imageUrls: [""] }]);
+  const [productInputs, setProductInputs] = useState([{ name: {en : "" , guj : "" , hi : ""}, details: "", price: "", imageUrls: [""] }]);
   
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
@@ -23,7 +23,7 @@ function Add() {
   const [selectedStore, setSelectedStore] = useState(""); // Selected Store
   const [stores, setStores] = useState([]); // List of Stores
 
-  const storeId = urlStoreId || selectedStore; // ✅ Use URL storeId or selected one
+  const storeId = urlStoreId || selectedStore; 
   const { id } = useParams();
   const isEditMode = !!id;
 
@@ -101,8 +101,14 @@ function Add() {
 
   const addMoreCategory = () => setCategoryInputs([...categoryInputs, ""]);
   const addMoreSubcategory = () => setSubcategoryInputs([...subcategoryInputs, ""]);
-  const addMoreProduct = () => setProductInputs([...productInputs, { name: "", details: "", price: "", imageUrls: [""] }]);
-
+  // const addMoreProduct = () => setProductInputs([...productInputs, { name: "", details: "", price: "", imageUrls: [""] }]);
+  const addMoreProduct = () => {
+    setProductInputs([
+      ...productInputs, 
+      { name: { en: "", guj: "", hi: "" }, details: "", price: "", imageUrls: [""] }
+    ]);
+  };
+  
   const handleCategoryInputChange = (index, value) => {
     let updated = [...categoryInputs];
     updated[index] = value;
@@ -115,11 +121,23 @@ function Add() {
     setSubcategoryInputs(updated);
   };
 
-  const handleProductInputChange = (index, field, value) => {
+  // const handleProductInputChange = (index, field, value) => {
+  //   let updated = [...productInputs];
+  //   updated[index][field] = value;
+  //   setProductInputs(updated);
+  // };
+  const handleProductInputChange = (index, field, value, lang = null) => {
     let updated = [...productInputs];
-    updated[index][field] = value;
+  
+    if (field === "name" && lang) {
+      updated[index].name[lang] = value; // Update specific language
+    } else {
+      updated[index][field] = value;
+    }
+  
     setProductInputs(updated);
   };
+  
 
   const handleImageChange = (productIndex, imageIndex, value) => {
     let updated = [...productInputs];
@@ -225,13 +243,13 @@ if (admin.id === null || admin.id === undefined) {
         })
           .then(() => {
             alert("Product Updated Successfully!");
-            navigate("/admin/store");
+            navigate("/admin/store/{storeId}");
           })
           .catch(error => console.error("Error updating product:", error));
       } else {
         payload = {
           adminId: admin.id,
-          productNames: productInputs.map(product => product.name.trim()),
+          productNames: productInputs.map(product => product.name),
           details: productInputs.map(product => product.details.trim()),
           prices: productInputs.map(product => Number(product.price)),
           categoryId,
@@ -264,7 +282,7 @@ if (admin.id === null || admin.id === undefined) {
 
   const removeCategory = (index) => {
     let updated = [...categoryInputs];
-    updated.splice(index, 1); // Remove the selected field
+    updated.splice(index, 1); 
     setCategoryInputs(updated);
   };
 
@@ -289,13 +307,7 @@ if (admin.id === null || admin.id === undefined) {
       <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
         ← Back to List
       </button>
-      {/* <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span> */}
 
-      {/* <div>
-      <h1 className="text-3xl font-bold">Add Product</h1>
-      {storeId && <p className="text-gray-600">Adding product to Store ID: {storeId}</p>}
-      {/* Product form goes here */}
-    {/* </div> */} */
       <form onSubmit={handleSubmit} className="bg-gray-100 rounded-2xl justify-self-center w-[70%] shadow-lg p-6 mt-6 space-y-6">
        
             <div className="flex items-center">
@@ -426,9 +438,27 @@ if (admin.id === null || admin.id === undefined) {
             {productInputs.map((product, index) => (
               <div key={index} className="m-4 p-3 border rounded-lg">
                 <div className="flex m-2 items-center">
-                  <label className="block w-70 text-lg">Enter Product Name :</label>
+                  {/* <label className="block w-70 text-lg">Enter Product Name :</label>
                   <input type="text" value={product.name} onChange={e => handleProductInputChange(index, "name", e.target.value)}
-                    className="w-full p-3 border rounded-lg mb-2" placeholder="Enter Product Name" />
+                    className="w-full p-3 border rounded-lg mb-2" placeholder="Enter Product Name" /> */}
+                    <div className="flex m-2 items-center">
+  <label className="block w-70 text-lg">Enter Product Name (English) :</label>
+  <input type="text" value={product.name.en} onChange={e => handleProductInputChange(index, "name", e.target.value, "en")}
+    className="w-full p-3 border rounded-lg mb-2" placeholder="Enter Product Name in English" />
+</div>
+
+<div className="flex m-2 items-center">
+  <label className="block w-70 text-lg">Enter Product Name (Gujarati) :</label>
+  <input type="text" value={product.name.guj} onChange={e => handleProductInputChange(index, "name", e.target.value, "guj")}
+    className="w-full p-3 border rounded-lg mb-2" placeholder="Enter Product Name in Gujarati" />
+</div>
+
+<div className="flex m-2 items-center">
+  <label className="block w-70 text-lg">Enter Product Name (Hindi) :</label>
+  <input type="text" value={product.name.hi} onChange={e => handleProductInputChange(index, "name", e.target.value, "hi")}
+    className="w-full p-3 border rounded-lg mb-2" placeholder="Enter Product Name in Hindi" />
+</div>
+
                 </div>
                 <div className="flex m-2 items-center">
                   <label className="block w-70 text-lg">Enter Product DEtails :</label>

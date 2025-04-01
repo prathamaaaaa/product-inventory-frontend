@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 function Detail() {
   const navigate = useNavigate();
@@ -13,10 +15,8 @@ function Detail() {
   const [error, setError] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const BASE_URL = import.meta.env.VITE_BASE_URL;
-
+const { t } = useTranslation();
   const location = useLocation();
-
-
 
   function CopyUrl() {
     const currentURL = window.location.href;
@@ -48,7 +48,7 @@ function Detail() {
       <div className="flex justify-between items-center p-4 pt-10 bg-gray-100 pl-10 shadow-md">
         {location.pathname.startsWith("/admin/detail/") && (
           <button
-            onClick={() => navigate("/admin/adminpanel")}
+            onClick={() => navigate("/admin/dashboard")}
             className="text-primary ml-[5%] hover:underline"
           >
             ← Back to List
@@ -60,7 +60,7 @@ function Detail() {
             onClick={() => navigate(-1)}
             className="text-primary ml-[5%] hover:underline"
           >
-            ← Back to List
+            {t("backToList")}
           </button>
         )}
         <svg xmlns="http://www.w3.org/2000/svg" onClick={CopyUrl} width="25" height="25"
@@ -135,7 +135,7 @@ function Detail() {
               <div className="mt-6 flex justify-between items-center">
                 <p className="text-3xl font-bold text-gray-900">${product.price}</p>
                 <button className="px-6 py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-orange-600 transition">
-                  BUY
+                  {t("buy")}
                 </button>
               </div>
             </div>
