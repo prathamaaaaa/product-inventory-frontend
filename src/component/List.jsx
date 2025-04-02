@@ -7,17 +7,40 @@ import { useTranslation } from "react-i18next";
 import { Globe, ChevronDown } from "lucide-react";
 
 function List({ storeId }) {
-  const [isOpen, setIsOpen] = useState(false);
-
   const { t, i18n } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
-    setIsOpen(false); 
+    setLanguage(lng);
     localStorage.setItem("language", lng);
-
+    setIsOpen(false);
   };
-  const language = localStorage.getItem("language") || "en";
+  function CopyUrl() {
+    const currentURL = new URL(window.location.href); 
+    currentURL.searchParams.set("lang", language);
+
+    navigator.clipboard.writeText(currentURL.href)
+      .then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      })
+      .catch((err) => console.error("Error copying:", err));
+  }
+
+  // On component mount, check for `lang` in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const langFromURL = params.get("lang");
+
+    if (langFromURL) {
+      i18n.changeLanguage(langFromURL);
+      setLanguage(langFromURL);
+      localStorage.setItem("language", langFromURL);
+    }
+  }, []);
+
 
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -45,13 +68,8 @@ function List({ storeId }) {
   // const storeId = params.get("storeId"); // Get storeId from URL
 
 
-  function CopyUrl() {
-    const currentURL = window.location.href;
-    navigator.clipboard.writeText(currentURL).then(() => {
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    }).catch((err) => console.error("Error copying:", err));
-  }
+ 
+  
   useEffect(() => {
     let url = `${BASE_URL}/api/products/all`;
     if (storeId) {
@@ -186,7 +204,6 @@ function List({ storeId }) {
 
 
 
-
   return (
 
 
@@ -195,6 +212,8 @@ function List({ storeId }) {
       {/* header sections  */}
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
+        {(!location.pathname.startsWith("/admin/") && !location.pathname.startsWith("/store/")) && (
+
         <div>
         <div className="relative inline-block">
       {/* Icon button to toggle dropdown */}
@@ -238,6 +257,7 @@ function List({ storeId }) {
       )}
     </div>
     </div>
+        )}
         {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}
 
         {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
@@ -351,8 +371,6 @@ function List({ storeId }) {
                               </>
                             )}
                           </svg>
-
-
                         </span>
                         <span title="Edit Product">
                           {storeId && (

@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next";
 function StoreDetail() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
   const { t } = useTranslation();
-  
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
+
   const { id } = useParams(); // Get Store ID from URL
   const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
@@ -119,7 +120,9 @@ function StoreDetail() {
 
       <div className="bg-white flex justify-between mb-10 p-6 rounded-lg shadow-lg text-center mt-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">{store.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+          {JSON.parse(store.name)[language] || JSON.parse(store.name)["en"]}
+          </h1>
 
         </div>
         <div>

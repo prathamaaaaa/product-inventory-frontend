@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 
 function Detail() {
@@ -15,16 +14,30 @@ function Detail() {
   const [error, setError] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const BASE_URL = import.meta.env.VITE_BASE_URL;
-const { t } = useTranslation();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
 
   function CopyUrl() {
-    const currentURL = window.location.href;
+    const currentURL = new URL(window.location.href); // Convert to URL object
+    currentURL.searchParams.set("lang", language); // Set language in URL
+
     navigator.clipboard.writeText(currentURL).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     }).catch((err) => console.error("Error copying:", err));
   }
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const langFromURL = params.get("lang");
+
+    if (langFromURL) {
+      i18n.changeLanguage(langFromURL);
+      setLanguage(langFromURL);
+      localStorage.setItem("language", langFromURL);
+    }
+  }, [i18n]); // Fix: Add `i18n` as a dependency
+
   useEffect(() => {
     axios.get(`${BASE_URL}/api/products/${id}`)
       .then(response => {
@@ -51,7 +64,7 @@ const { t } = useTranslation();
             onClick={() => navigate("/admin/dashboard")}
             className="text-primary ml-[5%] hover:underline"
           >
-            ← Back to List
+         {t("backToList")}
           </button>
         )}
 
@@ -101,7 +114,9 @@ const { t } = useTranslation();
 
             {/* Right: Product Info */}
             <div className="mb-10">
-              <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
+              {/* <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1> */}
+              {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
+
               <p className="text-gray-600 text-sm">{product.categoryName} / {product.subCategoryName}</p>
 
               {/* Rating & Description */}

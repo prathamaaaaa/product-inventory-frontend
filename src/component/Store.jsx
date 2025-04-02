@@ -5,12 +5,13 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 function Store() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const { t, i18n } = useTranslation();
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
 
   const [admin, setAdmin] = useState(null);
   const [stores, setStores] = useState([]);
   const [productCounts, setProductCounts] = useState({});
   const [copySuccess, setCopySuccess] = useState(false);
-const { t } = useTranslation();
 
   useEffect(() => {
     const storedAdmin = localStorage.getItem("admin");
@@ -48,14 +49,27 @@ const { t } = useTranslation();
   }, [admin]);
 
   function CopyUrl(storeId) {
-    const storeUrl = `${window.location.origin}/store/${storeId}`;
-    navigator.clipboard.writeText(storeUrl)
+    const storeUrl = new URL(`${window.location.origin}/store/${storeId}`); 
+    storeUrl.searchParams.set("lang", language);
+  
+    navigator.clipboard.writeText(storeUrl.toString())
       .then(() => {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
       })
       .catch((err) => console.error("Error copying:", err));
   }
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const langFromURL = params.get("lang");
+
+    if (langFromURL) {
+      i18n.changeLanguage(langFromURL);
+      setLanguage(langFromURL);
+      localStorage.setItem("language", langFromURL);
+    }
+  }, [i18n]);
 
   const handleDownloadCSV = (storeId) => {
     axios.get(`${BASE_URL}/api/stores/download-csv/${storeId}`, { responseType: "blob" })
@@ -116,7 +130,10 @@ const { t } = useTranslation();
           stores.map((store) => (
             <div key={store.id} className="relative p-6 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer">
               <Link to={`/store/${store.id}`}>
-                <h2 className="text-xl font-semibold text-gray-800">{store.name}</h2>
+                <h2 className="text-xl font-semibold text-gray-800">
+                {JSON.parse(store.name)[language] || JSON.parse(store.name)["en"]}
+                  </h2>
+
                 <p className="text-gray-600">Store ID: {store.id}</p>
                 <p className="text-gray-600">Total Product: {productCounts[store.id] ?? "Loading..."}</p>
               </Link>
