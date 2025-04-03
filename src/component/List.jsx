@@ -18,7 +18,7 @@ function List({ storeId }) {
     setIsOpen(false);
   };
   function CopyUrl() {
-    const currentURL = new URL(window.location.href); 
+    const currentURL = new URL(window.location.href);
     currentURL.searchParams.set("lang", language);
 
     navigator.clipboard.writeText(currentURL.href)
@@ -67,9 +67,12 @@ function List({ storeId }) {
   const params = new URLSearchParams(location.search);
   // const storeId = params.get("storeId"); // Get storeId from URL
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Remove user from localStorage
+    navigate("/list"); // Redirect to home after logout
+  };
 
- 
-  
   useEffect(() => {
     let url = `${BASE_URL}/api/products/all`;
     if (storeId) {
@@ -178,10 +181,10 @@ function List({ storeId }) {
     });
   }
   const toggleProductStatus = async (productId) => {
+
     try {
       console.log("Toggling product status for ID:", productId);
 
-      // 🔄 Step 1: Send API request and store response
       const response = await axios.put(`${BASE_URL}/api/products/toggle-active/${productId}`);
       console.log("Product status toggled successfully!", response.data);
 
@@ -204,60 +207,122 @@ function List({ storeId }) {
 
 
 
-  return (
+  const AddtoCart = (id) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  
+    const existingProduct = cart.find((item) => item.id === id);
+  
+    if (existingProduct) {
+      cart = cart.map((item) =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      );
+    } else {
+      cart.push({ id, quantity: 1 });
+    }
+  
+    localStorage.setItem("cart", JSON.stringify(cart));
+  
+    console.log("Product added to cart:", cart);
+  };
+  
 
+
+
+
+
+
+
+
+
+  return (
 
     <div className="bg-gray-50 text-gray-900 min-h-screen p-8">
 
       {/* header sections  */}
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
-        {(!location.pathname.startsWith("/admin/") && !location.pathname.startsWith("/store/")) && (
+       
 
-        <div>
-        <div className="relative inline-block">
-      {/* Icon button to toggle dropdown */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition"
-        >
-        select Language
-        <Globe className="w-5 ml-2 h-5 mr-1" />
-        <ChevronDown className="w-4 h-4" />
-      </button>
+          {(location.pathname.startsWith("/list")) && (
+          <div className="lg:flex">
 
-      {/* Language dropdown */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
-          <button
-            onClick={() => changeLanguage("en")}
-            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-          >
-            English
-          </button>
-          <button
-            onClick={() => changeLanguage("es")}
-            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-          >
-             Español
-          </button>
-          <button
-            onClick={() => changeLanguage("hi")}
-            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-          >
-             Hindi
-          </button>
-          <button
-            onClick={() => changeLanguage("guj")}
-            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-          >
-             Gujarati
-          </button>
+        <div className="mr-4 md:mb-0 mb-4 mt-2">
+          <span title="View Cart">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor"
+              strokeWidth={2}
+              onClick={() => navigate("/cart")}
+              className="lucide justify-self-end lucide-baggage-claim-icon lucide-baggage-claim">
+              <path d="M22 18H6a2 2 0 0 1-2-2V7a2 2 0 0 0-2-2" />
+              <path d="M17 14V4a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v10" />
+              <rect width="13" height="8" x="8" y="6" rx="1" />
+              <circle cx="18" cy="20" r="2" /><circle cx="9" cy="20" r="2" />
+            </svg>
+          </span>
         </div>
+
+
+            <div className="relative mb-4 md:mb-0 inline-block">
+
+              {/* Icon button to toggle dropdown */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+              >
+                select Language
+                <Globe className="w-5 ml-2 h-5 mr-1" />
+                <ChevronDown className="w-4 h-4" />
+              </button>
+
+              {/* Language dropdown */}
+              {isOpen && (
+
+                <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
+                  <button
+                    onClick={() => changeLanguage("en")}
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    English
+                  </button>
+
+                  <button
+                    onClick={() => changeLanguage("hi")}
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Hindi
+                  </button>
+                  <button
+                    onClick={() => changeLanguage("guj")}
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Gujarati
+                  </button>
+                  
+                
+                </div>
+              )}
+            </div>
+        
+            <div>
+      {user ? (
+        <button 
+          onClick={handleLogout} 
+          className="bg-red-600 ml-4 text-white px-6 py-2 rounded hover:bg-red-700"
+        >
+          Logout
+        </button>
+      ) : (
+        <button 
+          onClick={() => navigate("/auth", { state: { role: "user" } })} 
+          className="bg-indigo-600 ml-4 text-white px-6 py-2 rounded hover:bg-indigo-700"
+        >
+          Login
+        </button>
       )}
     </div>
-    </div>
-        )}
+
+          </div>
+                  )}
         {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}
 
         {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
@@ -334,7 +399,7 @@ function List({ storeId }) {
 
             .map(product => (
 
-              <div key ={product.id} className="bg-white p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
+              <div key={product.id} className="bg-white p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
                 {/* <span>{product.adminid}</span>
                 <span>admin{admin?.id}</span> */}
 
@@ -343,7 +408,7 @@ function List({ storeId }) {
                   <div>
                     {/* <span className="ml-2">{product.name}</span> */}
                     <span className="ml-2">
-                    {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
+                      {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
                     </span>
                   </div>
                   <div>
@@ -407,7 +472,21 @@ function List({ storeId }) {
                           </svg>
 
                         </span>
+
                       </div>
+                    )}
+                    {(location.pathname.startsWith("/list")) && (
+
+                      <span title="Add to Cart">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          strokeWidth={2}
+                          onClick={() =>{AddtoCart(product.id)}}
+                          className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1" />
+                          <circle cx="19" cy="21" r="1" />
+                          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                        </svg>
+                      </span>
                     )}
                   </div>
                 </h2>
@@ -424,7 +503,7 @@ function List({ storeId }) {
                   to={isAdminPanel ? `/admin/detail/${product.id}` : `/detail/${product.id}`}
                   className="text-indigo-500 font-semibold hover:underline"
                 >
-{t("viewDetails")}
+                  {t("viewDetails")}
                 </Link>
 
                 {/* Product Image */}
@@ -456,7 +535,7 @@ function List({ storeId }) {
       </button>
       {copySuccess && (
         <div className="fixed bottom-16 right-16 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg transition-opacity">
-{t("copyUrl")}        </div>
+          {t("copyUrl")}        </div>
       )}
 
     </div>

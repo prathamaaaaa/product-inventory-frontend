@@ -119,19 +119,17 @@ function AdminPanel() {
     }
   }, [navigate]);
 
-
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/api/products/all");
+      setProducts(res.data.products || []);
+      setCategories(res.data.categories || []);
+      setSubCategories(res.data.subCategories || []);
+    } catch (error) {
+      console.error("Error fetching data:", error.response?.data || error.message);
+    }
+  };
   useEffect(() => {
-
-    const fetchData = async () => {
-      try {
-        const res = await axios.get("http://localhost:8081/api/products/all");
-        setProducts(res.data.products || []);
-        setCategories(res.data.categories || []);
-        setSubCategories(res.data.subCategories || []);
-      } catch (error) {
-        console.error("Error fetching data:", error.response?.data || error.message);
-      }
-    };
     fetchData();
   }, []);
 
@@ -267,7 +265,6 @@ function AdminPanel() {
         
           <div className="flex items-center space-x-4">
             <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span>
-            <span className="text-gray-700 font-medium">{admin?.id || "Loading..."}</span>
 
           </div>
         </div>

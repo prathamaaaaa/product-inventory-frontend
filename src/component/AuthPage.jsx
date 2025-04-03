@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , useLocation } from "react-router-dom";
 // import animationData from "../lotties/animation.lottie";
 // import Lottie from "react-lottie";
 
@@ -22,11 +22,14 @@ const validationSchema = Yup.object({
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
 });
-
 function AuthPage() {
-    const [isLogin, setIsLogin] = useState(true); // Toggle between Login & Register
+  const location = useLocation();
+  const role = location.state?.role || "Admin"; 
+  console.log("User Role:", role);
+
+    const [isLogin, setIsLogin] = useState(true); 
     const [credentials, setCredentials] = useState({ email: "", password: "" });
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
     const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const toggleForm = () => setIsLogin(!isLogin);
@@ -34,20 +37,33 @@ function AuthPage() {
   
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
+      const payload = { ...values, role };  
+      console.log("Submitting Data:", payload);
       const url = isLogin
         ? `${BASE_URL}/admin/login`
         : `${BASE_URL}/admin/register`;
       
-      const res = await axios.post(url, values, {
+      const res = await axios.post(url, payload, {
         headers: { "Content-Type": "application/json" },
     });
 
       if (isLogin) {
-          alert("Logged in! Token: " + res.data.token);
-        localStorage.setItem("admin", JSON.stringify(res.data));
+        
         axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-
-        navigate("/admin/dashboard");
+        const userRole = res.data;
+        console.log("User Roleeee:", userRole);
+        console.log("Userssss Role:",res.data.role);
+        
+        
+        if (userRole.role === "Admin") {
+          localStorage.setItem("admin", JSON.stringify(res.data));
+          navigate("/admin/dashboard");
+      } else if (userRole.role === "user") {
+        localStorage.setItem("user", JSON.stringify(res.data));
+          navigate("/list");
+      } else {
+          alert("Unknown role! Redirecting to home.");
+      }
       } else {
         alert("Registered Successfully!");
         window.location.reload();
@@ -78,7 +94,6 @@ function AuthPage() {
       console.error("Google Login Error:", error.response?.data || error.message);
     }
   };
-
   return (
     <GoogleOAuthProvider clientId="45809495699-dbklp080vhk4il0uuoko2951o48jk2ku.apps.googleusercontent.com">
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-r">
@@ -89,7 +104,7 @@ function AuthPage() {
           className="bg-white rounded-2xl shadow-lg flex w-[70%] overflow-hidden"
         >
           {/* Left Section */}
-          <div className="w-1/2 bg-gradient-to-r from-[#6A11CB] to-[#2575FC] flex flex-col justify-center items-center p-8">
+          <div className="w-1/2 bg-gradient-to-r md:block hidden from-[#6A11CB] to-[#2575FC] lg:flex lg:flex-col lg:justify-center lg:items-center p-8">
           {/* <Lottie
                         options={defaultOptions}
                         height={600}
@@ -105,13 +120,13 @@ function AuthPage() {
           </div>
 
           {/* Right Section */}
-          <div className="w-1/2 p-10 relative">
+          <div className="md:w-1/2 w-full p-10 relative">
             <h2 className="text-2xl font-bold text-gray-700">{isLogin ? "Login" : "Register"}</h2>
             <p className="text-gray-500">{isLogin ? "Welcome back!" : "Create your account in a few seconds."}</p>
 
             {/* Form */}
             <Formik
-              initialValues={{ name: "", email: "", password: "" }}
+              initialValues={{ name: "", email: "", password: "",role  }}
               validationSchema={isLogin ? validationSchema.pick(["email", "password"]) : validationSchema}
               onSubmit={handleSubmit}
             >

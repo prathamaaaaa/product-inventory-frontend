@@ -56,6 +56,33 @@ function Detail() {
   if (error) return <p className="text-center text-red-500">Error loading product details.</p>;
   if (!product) return <p className="text-center text-gray-600">Product not found.</p>;
 
+
+    const AddtoCart = (id) => {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    
+      const existingProduct = cart.find((item) => item.id === id);
+    
+      if (existingProduct) {
+        cart = cart.map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        cart.push({ id, quantity: 1 });
+      }
+    
+      localStorage.setItem("cart", JSON.stringify(cart));
+    
+      console.log("Product added to cart:", cart);
+    };
+    
+
+
+
+
+
+
+
+
   return (
     <div className="min-h-screen bg-gray-100 ">
       <div className="flex justify-between items-center p-4 pt-10 bg-gray-100 pl-10 shadow-md">
@@ -114,9 +141,25 @@ function Detail() {
 
             {/* Right: Product Info */}
             <div className="mb-10">
-              {/* <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1> */}
-              {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
+<div className="flex justify-between">
+              <h1 className="text-2xl font-bold text-gray-900">
+{JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
+              </h1> 
+              {(location.pathname.startsWith("/detail/18")) && (
 
+<span title="Add to Cart">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth={2}
+    onClick={( ) =>{AddtoCart(product.id)}}
+    className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1" />
+    <circle cx="19" cy="21" r="1" />
+    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+  </svg>
+  
+</span>
+)}
+</div>
               <p className="text-gray-600 text-sm">{product.categoryName} / {product.subCategoryName}</p>
 
               {/* Rating & Description */}

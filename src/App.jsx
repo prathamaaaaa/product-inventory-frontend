@@ -10,6 +10,8 @@ import AuthPage from "./component/AuthPage";
 import Store from "./component/Store";
 import CreateStore from "./component/CreateStore";
 import StoreDetail from "./component/StoreDetail";
+import Cart from "./component/Cart";
+import Checkout from "./component/Checkout";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         {/* <Route path="/store" element={<Store />} /> */}
         <Route path="/store/:id" element={<StoreDetail />} /> 
         <Route path="/list" element={<List />} /> 
+        <Route path="/cart" element={<Cart />} /> 
+        <Route path="/checkout" element={<Checkout />} /> 
 
         <Route path="/admin" element={<AdminPanel />}>
           <Route index element={<Navigate to="/admin/dashboard" />} />  {/* Default to Dashboard */}
