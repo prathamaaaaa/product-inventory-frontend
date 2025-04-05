@@ -31,59 +31,111 @@ function Cart() {
   };
   const fetchCartDetails = async () => {
     try {
-      let cart = JSON.parse(localStorage.getItem("cart") || "[]"); // Ensure cart is always an array
-      let productIds = cart.map((item) => item.id);
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]"); 
+        let productIds = cart.map((item) => item.productid); // Fix: Use productid
 
-      let response = await axios.get(`${BASE_URL}/api/products/all`);
-      let allProducts = response.data.products;
+        let response = await axios.get(`${BASE_URL}/api/products/all`);
+        let allProducts = response.data.products;
 
-      let updatedCart = allProducts
-        .filter((product) => productIds.includes(product.id))
-        .map((product) => {
-          let cartItem = cart.find((item) => item.id === product.id);
-          return { ...product, quantity: cartItem.quantity };
-        });
+        let updatedCart = allProducts
+            .filter((product) => productIds.includes(product.id)) // Ensure productid matches id
+            .map((product) => {
+                let cartItem = cart.find((item) => item.productid === product.id);
+                return { ...product, quantity: cartItem.quantity };
+            });
 
-      setCartDetails(updatedCart);
+        setCartDetails(updatedCart);
     } catch (error) {
-      console.error("Error fetching cart details:", error);
+        console.error("Error fetching cart details:", error);
     }
-  };
-  useEffect(() => {
-    
+};
 
+  useEffect(() => {
     fetchCartDetails();
   }, []);
   
 
-  const updateQuantity = (id, change) => {
-    setCartDetails((prevCart) => {
-      const updatedCart = prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
-      );
+  const updateQuantity = async (id, change) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let user = JSON.parse(localStorage.getItem("user"));
   
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      fetchCartDetails();
-      return updatedCart; 
-    });
+    if (!user) {
+      console.log("User not logged in. Cart stored only in local storage.");
+      return;
+    }
+  
+    const existingProduct = cart.find((item) => item.productid === id);
+    if (!existingProduct) return; 
+  
+    existingProduct.quantity = Math.max(1, existingProduct.quantity + change);
+    localStorage.setItem("cart", JSON.stringify(cart));
+  
+    try {
+      const cartData = {
+        userid: user.id ?? 0,
+        productid: existingProduct.productid ?? 0,
+        productname: existingProduct.productname || "Unknown", 
+        quantity: existingProduct.quantity ?? 1,
+      };
+  
+      console.log("Sending cart data:", cartData);
+  
+      const response = await fetch("http://localhost:8081/api/products/cart", {  // Ensure correct API URL
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cartData),
+      });
+  
+      if (response.ok) {
+        console.log("Cart item quantity updated in database.");
+        fetchCartDetails(); 
+      } else {
+        const errorText = await response.text();
+        console.error("Failed to update cart quantity:", errorText);
+      }
+    } catch (error) {
+      console.error("Error updating cart:", error);
+    }
   };
+  
+  
   
   
   const deleteItem = async (id) => {
-    let cart = JSON.parse(localStorage.getItem("cart") || "[]"); 
-    console.log("cart1",cart)
-    cart = cart.filter((item) => item.id !== id);
-    console.log("cart1",cart)
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    let user = JSON.parse(localStorage.getItem("user"));
+
+    // Remove item from local storage
+    cart = cart.filter((item) => item.productid !== id);
     localStorage.setItem("cart", JSON.stringify(cart));
-    console.log("cart1",cart)
-    setCartDetails(cart);
-    console.log("cart2",cart)
-    fetchCartDetails();
-  };
+
+    // Update state
+    setCartDetails(prevCart => prevCart.filter((item) => item.id !== id));
+
+    if (!user) {
+        console.log("User not logged in, only updating local storage.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8081/api/products/cart/${id}`, {
+            method: "DELETE",
+        });
+
+        if (response.ok) {
+            console.log("Cart item deleted from database.");
+        } else {
+            const errorText = await response.text();
+            console.error("Failed to delete cart item:", errorText);
+        }
+    } catch (error) {
+        console.error("Error deleting cart item:", error);
+    }
+};
+
   
-    
     const subtotal = Array.isArray(cartDetails) ? cartDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0) : 0;
-    const total = subtotal + 20;
+    const total = subtotal + 20 - 9;; 
     
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
@@ -104,8 +156,8 @@ function Cart() {
           <tbody>
           {Array.isArray(cartDetails) && cartDetails.length > 0 ? (
               cartDetails.map((item) => (
-                <tr key={item.id} className="border-b">
-                  <td className="p-4 flex items-center">
+<tr key={`cart-item-${item.id}`} className="border-b">
+<td className="p-4 flex items-center">
                     <img
                       src={Array.isArray(item.imageUrls) && item.imageUrls.length > 0 ? item.imageUrls[0] : DEFAULT_IMAGE}
                       alt={item.name}
@@ -151,7 +203,7 @@ function Cart() {
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">
         <div className="flex justify-between text-lg">
           <div>
-            <p>Discount: <span className="font-semibold">₹0.00</span></p>
+            <p>Discount: <span className="font-semibold">₹9.00</span></p>
             <p>Delivery: <span className="font-semibold">₹20.00</span></p>
           </div>
           <div>

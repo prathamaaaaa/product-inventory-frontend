@@ -29,7 +29,6 @@ function List({ storeId }) {
       .catch((err) => console.error("Error copying:", err));
   }
 
-  // On component mount, check for `lang` in URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const langFromURL = params.get("lang");
@@ -65,15 +64,71 @@ function List({ storeId }) {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const params = new URLSearchParams(location.search);
-  // const storeId = params.get("storeId"); // Get storeId from URL
 
   const user = JSON.parse(localStorage.getItem("user"));
+
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Remove user from localStorage
-    navigate("/list"); // Redirect to home after logout
-  };
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You will be logged out.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, logout!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem("user");
+            Swal.fire("Logged Out", "You have been logged out.", "success");
+            navigate("/list");
+        }
+    });
+};
+
+  const syncCartWithDatabase = async (userId) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    console.log("uuuuuu",userId)
+
+    if (cart.length === 0) {
+        console.log("No items in local storage cart to sync.");
+        return;
+    }
+
+    const cartData = {
+        userid: Number(user.id), 
+        cartItems: cart.map(item => ({
+            productid: Number(item.productid), 
+            productname: String(item.productname), 
+            quantity: Number(item.quantity) 
+        }))
+    };
+
+    console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2)); // Debug JSON format
+
+    try {
+        const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(cartData),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(" Failed to sync local cart with database:", errorText);
+        } else {
+            console.log(" Local cart synced with database successfully.");
+        }
+    } catch (error) {
+        console.error(" Error sending local cart to database:", error);
+    }
+};
+
 
   useEffect(() => {
+    syncCartWithDatabase();
+
     let url = `${BASE_URL}/api/products/all`;
     if (storeId) {
       url = `${BASE_URL}/api/stores/product/${storeId}`;
@@ -207,26 +262,65 @@ function List({ storeId }) {
 
 
 
-  const AddtoCart = (id) => {
+
+
+ 
+
+
+
+
+
+  const AddtoCart = async (id, productName) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  
-    const existingProduct = cart.find((item) => item.id === id);
-  
-    if (existingProduct) {
-      cart = cart.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      );
+
+    let user = JSON.parse(localStorage.getItem("user")); 
+
+    console.log("Initial Local Storage:", productName);
+    
+    let updatedProduct = null;
+    const existingProductIndex = cart.findIndex((item) => item.productid === id);
+
+    if (existingProductIndex !== -1) {
+        cart[existingProductIndex].quantity += 1;
+        updatedProduct = cart[existingProductIndex];
     } else {
-      cart.push({ id, quantity: 1 });
+        updatedProduct = { productid: id, productname: productName, quantity: 1 };
+        cart.push(updatedProduct);
     }
-  
+
     localStorage.setItem("cart", JSON.stringify(cart));
-  
-    console.log("Product added to cart:", cart);
-  };
-  
 
+    console.log("Updated Local Storage:", JSON.parse(localStorage.getItem("cart")));
 
+    if (user && user.id) {
+        try {
+            const cartData = {
+                userid: user.id, 
+                productid: updatedProduct.productid,
+                productname: updatedProduct.productname,
+                quantity: updatedProduct.quantity
+            };
+
+            const response = await fetch("http://localhost:8081/api/products/cart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(cartData),
+            });
+
+            if (response.ok) {
+                console.log("Cart item saved in database successfully.");
+            } else {
+                console.error("Failed to save cart item in database.");
+            }
+        } catch (error) {
+            console.error("Error sending cart item to database:", error);
+        }
+    } else {
+        console.log("User not logged in. Cart stored only in local storage.");
+    }
+};
 
 
 
@@ -481,7 +575,8 @@ function List({ storeId }) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                           viewBox="0 0 24 24" fill="none" stroke="currentColor"
                           strokeWidth={2}
-                          onClick={() =>{AddtoCart(product.id)}}
+                          onClick={() =>{AddtoCart(product.id,
+                            product.name)}}
                           className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1" />
                           <circle cx="19" cy="21" r="1" />
                           <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
