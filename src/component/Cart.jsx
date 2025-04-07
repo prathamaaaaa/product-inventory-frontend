@@ -26,7 +26,7 @@ function Cart() {
         }
       });
     } else {
-      navigate("/checkout"); // Proceed to checkout if logged in
+      navigate("/checkout", { state: { total} }); // Proceed to checkout if logged in
     }
   };
   const fetchCartDetails = async () => {
