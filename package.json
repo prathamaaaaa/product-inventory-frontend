@@ -25,6 +25,7 @@
     "react-lottie": "^1.2.10",
     "react-player": "^2.16.0",
     "react-router-dom": "^6.30.0",
+    "react-toastify": "^11.0.5",
     "sweetalert2": "^11.17.2",
     "tailwindcss": "^4.0.14",
     "yup": "^1.6.1"

@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
+
+
+
+
 function Cart() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
   const [cartDetails, setCartDetails] = useState([]);
@@ -9,6 +14,7 @@ function Cart() {
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
+  const { t, i18n } = useTranslation();
 
   const handleCheckout = () => {
     if (!user) {
@@ -138,18 +144,22 @@ function Cart() {
     const total = subtotal + 20 - 9;; 
     
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-semibold text-center mb-6">Shopping Cart</h2>
+    <>
+      <div>
+  
+      <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+       
+      <h2 className="text-2xl font-semibold text-center mb-6">{t("productss")}</h2>
 
       {/* Cart Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-4 text-left">Product</th>
+              <th className="p-4 text-left">{t("productss")}</th>
               {/* <th className="p-4 text-center">Size</th> */}
-              <th className="p-4 text-center">Quantity</th>
-              <th className="p-4 text-center">Price</th>
+              <th className="p-4 text-center">{t("quantity")}</th>
+              <th className="p-4 text-center">{t("priceLabel")}</th>
               <th className="p-4 text-center"></th>
             </tr>
           </thead>
@@ -184,7 +194,7 @@ function Cart() {
                       >+</button>
                     </div>
                   </td>
-                  <td className="p-4 text-center">${item.price}</td>
+                  <td className="p-4 text-center">₹ {item.price}</td>
                   <td className="p-4 text-center">
                     <button onClick={() =>{deleteItem(item.id)}} className="text-red-500 text-xl hover:text-red-700">×</button>
                   </td>
@@ -203,22 +213,24 @@ function Cart() {
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">
         <div className="flex justify-between text-lg">
           <div>
-            <p>Discount: <span className="font-semibold">₹9.00</span></p>
-            <p>Delivery: <span className="font-semibold">₹20.00</span></p>
+            <p>{t("discount")}: <span className="font-semibold">₹9.00</span></p>
+            <p>{t("delivery")}: <span className="font-semibold">₹20.00</span></p>
           </div>
           <div>
-            <p>Subtotal: <span className="font-semibold">₹{subtotal.toFixed(2)}</span></p>
-            <p className="text-xl font-bold">Total: ₹{total.toFixed(2)}</p>
+            <p>{t("subtotal")}: <span className="font-semibold">₹{subtotal.toFixed(2)}</span></p>
+            <p className="text-xl font-bold">{t("total")}: ₹{total.toFixed(2)}</p>
           </div>
         </div>
       </div>
 
       {/* Buttons */}
       <div className="flex justify-between mt-6">
-        <button onClick={()=>navigate("/list")} className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">Back to Shop</button>
-        <button onClick={handleCheckout} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Checkout</button>
+        <button onClick={()=>navigate("/list")} className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">{t("backToShop")}</button>
+        <button onClick={handleCheckout} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">{t("checkout")}</button>
       </div>
     </div>
+      </div>
+    </>
   );
 }
 

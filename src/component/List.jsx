@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Globe, ChevronDown } from "lucide-react";
-
+import { toast } from "react-toastify";
 function List({ storeId }) {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -63,11 +63,6 @@ function List({ storeId }) {
 
 
 
-
-
-
-
-
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const params = new URLSearchParams(location.search);
@@ -76,17 +71,18 @@ function List({ storeId }) {
 
   const handleLogout = () => {
     Swal.fire({
-        title: "Are you sure?",
-        text: "You will be logged out.",
+        title:t("title"),
+        text:t("text"),
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, logout!"
+        confirmButtonText: t("confirm"),
+        cancelButtonText: t("cancel"),
     }).then((result) => {
         if (result.isConfirmed) {
             localStorage.removeItem("user");
-            Swal.fire("Logged Out", "You have been logged out.", "success");
+            Swal.fire(t("logout_title"),t("logout_message"), "success");
             navigate("/list");
         }
     });
@@ -131,6 +127,34 @@ function List({ storeId }) {
         console.error(" Error sending local cart to database:", error);
     }
 };
+
+
+
+
+
+const PreventBackOnList = () => {
+  const location = useLocation();
+  const isLoggedIn = localStorage.getItem("user"); 
+
+  useEffect(() => {
+    if (isLoggedIn && location.pathname === "/list") {
+      window.history.pushState(null, "", window.location.href);
+
+      const handlePopState = () => {
+        window.history.pushState(null, "", window.location.href);
+      };
+
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, [location.pathname, isLoggedIn]);
+
+  return null;
+};
+
 
 
   useEffect(() => {
@@ -277,12 +301,12 @@ function List({ storeId }) {
 
 
 
-  const AddtoCart = async (id, productName) => {
+  const AddtoCart = async (id, productName , price) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     let user = JSON.parse(localStorage.getItem("user")); 
 
-    console.log("Initial Local Storage:", productName);
+    console.log("Initial Local Storage name:", productName);
     
     let updatedProduct = null;
     const existingProductIndex = cart.findIndex((item) => item.productid === id);
@@ -291,9 +315,12 @@ function List({ storeId }) {
         cart[existingProductIndex].quantity += 1;
         updatedProduct = cart[existingProductIndex];
     } else {
-        updatedProduct = { productid: id, productname: productName, quantity: 1 };
+        updatedProduct = { productid: id, 
+          productname: productName
+          , quantity: 1 , price: price };
         cart.push(updatedProduct);
     }
+    console.log("Initial Local Storage name:", productName);
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
@@ -304,7 +331,7 @@ function List({ storeId }) {
             const cartData = {
                 userid: user.id, 
                 productid: updatedProduct.productid,
-                productname: updatedProduct.productname,
+                productname: productName,
                 quantity: updatedProduct.quantity
             };
 
@@ -338,6 +365,7 @@ function List({ storeId }) {
   return (
 
     <div className="bg-gray-50 text-gray-900 min-h-screen p-8">
+<PreventBackOnList />
 
       {/* header sections  */}
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
@@ -576,20 +604,42 @@ function List({ storeId }) {
 
                       </div>
                     )}
-                    {(location.pathname.startsWith("/list")) && (
+                    {location.pathname.startsWith("/list") && (
+  <span title="Add to Cart">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      onClick={() => {
+        const localizedName =
+        JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
 
-                      <span title="Add to Cart">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                          viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          strokeWidth={2}
-                          onClick={() =>{AddtoCart(product.id,
-                            product.name)}}
-                          className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1" />
-                          <circle cx="19" cy="21" r="1" />
-                          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                        </svg>
-                      </span>
-                    )}
+        AddtoCart(product.id, product.name , product.price);
+
+        toast.success(`${localizedName} added to cart!`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }}
+      className="lucide lucide-shopping-cart-icon lucide-shopping-cart"
+    >
+      <circle cx="8" cy="21" r="1" />
+      <circle cx="19" cy="21" r="1" />
+      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+    </svg>
+  </span>
+)}
+
                   </div>
                 </h2>
 

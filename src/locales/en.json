@@ -88,5 +88,67 @@
   "addMoreImageUrls": "+ Add More Image URLs",
   "addMoreProducts": "+ Add More Products",
   "submit": "Submit",
-  "deleteproduct": "Delete this product"
+  "deleteproduct": "Delete this product",
+
+
+"checkout": "Checkout",
+"orderSubtotal": "Order Subtotal",
+"step1": "1. Shipping address",
+"firstName": "First Name",
+"lastName": "Last Name",
+"address1": "Address 1 - Street or P.O. Box",
+"address2": "Address 2 - Apt, Suite, Floor",
+"mobileNumber": "Mobile Number",
+"zipCode": "ZIP Code",
+"city": "City",
+"state": "State",
+"selectState": "Select State",
+"continueToShipping": "Continue to shipping method",
+"step2": "2. Shipping method",
+"step3": "3. Payment",
+"step4": "4. Review & place order",
+
+"gujarat": "Gujarat",
+"maharashtra": "Maharashtra",
+"rajasthan": "Rajasthan",
+
+
+  "shoppingCart": "🛒 Shopping Cart",
+"productss": "Product",
+"quantity": "Quantity",
+"priceLabel": "Price",
+"discount": "Discount",
+"delivery": "Delivery",
+"subtotal": "Subtotal",
+"total": "Total",
+"backToShop": "← Back to Shop",
+"checkout": "Checkout",
+
+"payNow": "Pay Now with Razorpay",
+
+"email":"Email",
+"refundPayment": "Refund Payment",
+"refunded": "Refunded",
+"step4": "Step 4: Order Summary",
+"shippingAddress": "Shipping Address",
+"shippingMethod": "Shipping Method",
+"standardShipping": "Standard Shipping - ₹20",
+"paymentSummary": "Payment Summary",
+"paymentId": "Payment ID",
+"amountPaid": "Total Amount Paid: ₹",
+"confirmOrder": "Confirm & Place Order",
+"orderPlaced": "Order Placed!",
+"orderPlacedSuccess": "Your order has been successfully placed.",
+"continueToPayment": "Continue to Payment",
+"mobile": "Mobile",
+
+"title": "Are you sure?",
+"text": "You will be logged out.",
+"confirm": "Yes, logout!",
+"cancel": "Cancel",
+"logout_title": "Logged Out",
+  "logout_message": "You have been logged out.",
+  "logout_icon": "success"
+
+
 }

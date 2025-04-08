@@ -15,8 +15,8 @@ import Checkout from "./component/Checkout";
 
 function App() {
   return (
-    
-      <Routes>
+    <Routes>
+        
         {/* <Route path="/list" element={<List />} /> */}
         <Route path="/add" element={<Add />} />
         <Route path="/add/:id" element={<Add />} />

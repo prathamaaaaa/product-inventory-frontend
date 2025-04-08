@@ -1,7 +1,8 @@
 import { useState , useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useLocation } from "react-router-dom";
+import { useLocation ,useNavigate} from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 
 export default function Checkout() {
@@ -11,9 +12,11 @@ export default function Checkout() {
   const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
   const total = location.state?.total || 0;
-
+  const { t, i18n } = useTranslation();
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [paymentId, setPaymentId] = useState("");
   const [refundDone, setRefundDone] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -58,7 +61,7 @@ const handleRefund = async () => {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   
   const amount = total;
-  console.log("Cart Total:", amount);
+  console.log("Cart :", cart);
 
 
 
@@ -96,6 +99,12 @@ const handleRefund = async () => {
               orderid: response.razorpay_order_id,
               status: "success" ,
               amount: amount,
+              cartItems: JSON.stringify(cart.map((item) => ({
+                productid: item.productid,
+                productname: item.productname,
+                quantity: item.quantity,
+                price: item.price,
+              }))),
             };
         console.log("Payment Payload:", paymentPayload);
             await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
@@ -105,6 +114,7 @@ const handleRefund = async () => {
               title: "Payment Successful",
               text: "Your payment has been processed and recorded.",
             });
+            localStorage.removeItem("cart");
             setStep(4)
           } catch (err) {
             console.error("Error sending payment data:", err);
@@ -176,13 +186,20 @@ const handleRefund = async () => {
     }
   };
 
-
-
   return (
+  <>
+    <div>
+    <button
+  onClick={() => navigate("/cart")}
+  className="text-primary ml-[5%] m-12 hover:underline"
+>
+{t("backToList")}
+</button>
     <div className="max-w-4xl mx-auto p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-4">Checkout</h1>
+      
+      <h1 className="text-3xl font-bold mb-4">{t("checkout")}</h1>
       <p className="text-right text-lg font-semibold mb-6">
-        Order Subtotal : {total}
+      {t("orderSubtotal")} {total}
       </p>
 
       <div className="flex flex-col md:flex-row">
@@ -204,53 +221,53 @@ const handleRefund = async () => {
 
           {/* Step 1: Shipping Address */}
           <div className={`border-l-4 p-4 ${step === 1 ? 'border-black' : 'border-gray-300'}`}>
-            <h2 className="text-xl font-semibold">1. Shipping address</h2>
+            <h2 className="text-xl font-semibold">{t("step1")}</h2>
             {step === 1 && (
               <form className="mt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label className="block">
-                    First Name *
+                  {t("firstName")}
                     <input name="firstName" type="text" className="border p-2 rounded w-full" value={formData.firstName || ""} onChange={handleChange} />
                     {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
                   </label>
                   <label className="block">
-                    Last Name *
+                  {t("lastName")}
                     <input name="lastName" type="text" className="border p-2 rounded w-full" value={formData.lastName || ""} onChange={handleChange} />
                     {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
                   </label>
                 </div>
                 <label className="block">
-                  Address 1 - Street or P.O. Box *
+                {t("address1")}
                   <input name="address1" type="text" className="border p-2 rounded w-full" value={formData.address1 || ""} onChange={handleChange} />
                   {errors.address1 && <p className="text-red-500 text-sm">{errors.address1}</p>}
                 </label>
                 <label className="block">
-                  Address 2 - Apt, Suite, Floor
+                {t("address2")}
                   <input name="address2" type="text" className="border p-2 rounded w-full" value={formData.address2 || ""} onChange={handleChange} />
                 </label>
                 <label className="block">
-                  Mobile Number *
+                {t("mobileNumber")}
                   <input name="mobile" type="text" className="border p-2 rounded w-full" value={formData.mobile || ""} onChange={handleChange} />
                   {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile}</p>}
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <label className="block">
-                    ZIP Code *
+                  {t("zipCode")}
                     <input name="zip" type="text" className="border p-2 rounded w-full" value={formData.zip || ""} onChange={handleChange} />
                     {errors.zip && <p className="text-red-500 text-sm">{errors.zip}</p>}
                   </label>
                   <label className="block">
-                    City *
+                  {t("city")}
                     <input name="city" type="text" className="border p-2 rounded w-full" value={formData.city || ""} onChange={handleChange} />
                     {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
                   </label>
                   <label className="block">
-                    State *
+                  {t("state")}
                     <select name="state" className="border p-2 rounded w-full" value={formData.state || ""} onChange={handleChange}>
-                      <option value="">Select State</option>
-                      <option value="GUJ">Gujarat</option>
-                      <option value="MH">Maharastra</option>
-                      <option value="RJ">Rajasthan</option>
+                      <option value="">{t("selectState")}</option>
+                      <option value="GUJ"> {t("gujarat")}</option>
+                      <option value="MH"> {t("maharashtra")}</option>
+                      <option value="RJ"> {t("rajasthan")}</option>
                     </select>
                     {errors.state && <p className="text-red-500 text-sm">{errors.state}</p>}
                   </label>
@@ -266,7 +283,7 @@ const handleRefund = async () => {
 
                   className="bg-black text-white py-2 px-4 rounded w-full md:w-auto"
                 >
-                  Continue to shipping method
+                  {t("continueToShipping")}
                 </button>
               </form>
             )}
@@ -275,13 +292,13 @@ const handleRefund = async () => {
           {/* Step 2 */}
          {/* Step 2 */}
 <div className={`border-l-4 p-4 mt-4 ${step === 2 ? 'border-black' : 'border-gray-300'}`}>
-  <h2 className="text-xl font-semibold">2. Shipping method</h2>
+  <h2 className="text-xl font-semibold">{t("step2")}</h2>
   {step === 2 && (
     <div className="mt-4 space-y-4">
       <div className="border p-4 rounded bg-gray-50 flex justify-between items-center">
         <div>
           <input type="radio" id="standard" name="shipping" defaultChecked className="mr-2" />
-          <label htmlFor="standard" className="font-medium">Standard Shipping</label>
+          <label htmlFor="standard" className="font-medium">{t("standardShipping")}</label>
         </div>
         <div className="text-sm font-semibold text-gray-800">₹20</div>
       </div>
@@ -290,7 +307,7 @@ const handleRefund = async () => {
         onClick={() => setStep(3)}
         className="bg-black text-white py-2 px-4 rounded w-full md:w-auto"
       >
-        Continue to payment
+       {t("continueToPayment")}
       </button>
     </div>
   )}
@@ -299,7 +316,7 @@ const handleRefund = async () => {
 
           {/* Step 3 */}
           <div className={`border-l-4 p-4 mt-4 ${step === 3 ? 'border-black' : 'border-gray-300'}`}>
-          <h2 className="text-xl font-semibold">3. Payment</h2>
+          <h2 className="text-xl font-semibold">{t("step3")}</h2>
   {step === 3 && (
     <div className="mt-4 space-y-4">
       
@@ -335,11 +352,11 @@ const handleRefund = async () => {
   onClick={handleRazorpayPayment}
   className="bg-black text-white py-2 px-4 rounded w-full md:w-auto"
 >
-  Pay Now with Razorpay
+ {t("payNow")}
 </button>
 {paymentId && (
   <div className="p-4 border rounded bg-white">
-    <p className="mb-2">Payment ID: {paymentId}</p>
+    <p className="mb-2">{t("paymentId")}{paymentId}</p>
     <button
       onClick={handleRefund}
       disabled={refundDone}
@@ -347,7 +364,7 @@ const handleRefund = async () => {
         refundDone ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"
       } text-white px-4 py-2 rounded`}
     >
-      {refundDone ? "Refunded" : "Refund Payment"}
+      {refundDone ? t("refunded"): t("refundPayment")}
     </button>
     {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
   </div>
@@ -360,40 +377,40 @@ const handleRefund = async () => {
 
           {/* Step 4 */}
           <div className={`border-l-4 p-4 mt-4 ${step === 4 ? 'border-black' : 'border-gray-300'}`}>
-            <h2 className="text-xl font-semibold">4. Review & place order</h2>
+            <h2 className="text-xl font-semibold">{t("step4")}</h2>
             {step === 4 && (
               <div className="mt-4 space-y-6">
               {/* Shipping Details */}
               <div className="bg-gray-50 p-4 rounded shadow-sm">
-                <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
+                <h3 className="text-lg font-semibold mb-2">{t("shippingAddress")}</h3>
                 <p>{formData.firstName} {formData.lastName}</p>
                 <p>{formData.address1}</p>
                 {formData.address2 && <p>{formData.address2}</p>}
                 <p>{formData.city}, {formData.state} - {formData.zip}</p>
-                <p>Mobile: {formData.mobile}</p>
+                <p>{t("mobile")}: {formData.mobile}</p>
               </div>
             
               {/* Shipping Method */}
               <div className="bg-gray-50 p-4 rounded shadow-sm">
-                <h3 className="text-lg font-semibold mb-2">Shipping Method</h3>
-                <p>Standard Shipping - ₹20</p>
+                <h3 className="text-lg font-semibold mb-2">{t("shippingMethod")}</h3>
+                <p>{t("standardShipping")}</p>
               </div>
             
               {/* Payment Summary */}
               <div className="bg-gray-50 p-4 rounded shadow-sm">
-                <h3 className="text-lg font-semibold mb-2">Payment Summary</h3>
-                <p>Payment ID: <span className="font-mono text-sm">{paymentId || "Not Paid Yet"}</span></p>
-                <p>Total Amount Paid: ₹{amount}</p>
-                <p>Email: {user.email}</p>
+                <h3 className="text-lg font-semibold mb-2">{t("paymentSummary")}</h3>
+                <p>{t("paymentId")} :  <span className="font-mono text-sm">{paymentId || "Not Paid Yet"}</span></p>
+                <p>{t("amountPaid")}{amount}</p>
+                <p>{t("email")} : {user.email}</p>
               </div>
             
               {/* Final Place Order Button */}
               <button
                 type="submit"
                 className="bg-black hover:bg-gray-800 text-white py-2 px-6 rounded shadow-md transition"
-                onClick={() => Swal.fire("Order Placed!", "Your order has been successfully placed.", "success")}
+                onClick={() => Swal.fire( t("orderPlaced"), t("orderPlacedSuccess"), t("success") )}
               >
-                Confirm & Place Order
+                Check your Products
               </button>
             </div>
             
@@ -403,5 +420,8 @@ const handleRefund = async () => {
         </div>
       </div>
     </div>
+    </div>
+  
+  </>
   );
 }
