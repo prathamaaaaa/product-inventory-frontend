@@ -339,7 +339,24 @@ function Detail() {
               {/* Price & Buy Button */}
               <div className="mt-6 flex justify-between items-center">
                 <p className="text-3xl font-bold text-gray-900">${product.price}</p>
-                <button className="px-6 py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-orange-600 transition">
+                <button
+                
+                onClick={() => {
+                  const selectedProduct = {
+                    productid: product.id,
+                    productname: product.name,
+                    quantity: 1,
+                    price: product.price,
+                  };
+              
+                  navigate("/checkout", {
+                    state: {
+                      total: product.price,
+                      selectedItems: [selectedProduct],  // pass only this product
+                    },
+                  });
+                }}
+                className="px-6 py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-orange-600 transition">
                   {t("buy")}
                 </button>
               </div>

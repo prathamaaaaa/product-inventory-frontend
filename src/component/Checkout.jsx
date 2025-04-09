@@ -12,6 +12,9 @@ export default function Checkout() {
   const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
   const total = location.state?.total || 0;
+  const singleProduct = location.state?.selectedItems || null;
+
+  console.log("Single Product :", singleProduct.productid);
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [paymentId, setPaymentId] = useState("");
@@ -93,19 +96,28 @@ const handleRefund = async () => {
           setPaymentId(response.razorpay_payment_id);
         
           try {
-            const paymentPayload = {
-              userid: user.id,
-              paymentid: response.razorpay_payment_id,
-              orderid: response.razorpay_order_id,
-              status: "success" ,
-              amount: amount,
-              cartItems: JSON.stringify(cart.map((item) => ({
+            const itemsToSend = singleProduct
+            ? singleProduct.map((item) => ({
+              productid: item.productid,
+              productname: item.productname,
+              quantity: item.quantity,
+              price: item.price,
+            }))
+            : cart.map((item) => ({
                 productid: item.productid,
                 productname: item.productname,
                 quantity: item.quantity,
                 price: item.price,
-              }))),
-            };
+              }));
+
+          const paymentPayload = {
+            userid: user.id,
+            paymentid: response.razorpay_payment_id,
+            orderid: response.razorpay_order_id,
+            status: "success",
+            amount: amount,
+            cartItems: JSON.stringify(itemsToSend),
+          };
         console.log("Payment Payload:", paymentPayload);
             await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
         

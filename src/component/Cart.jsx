@@ -61,7 +61,7 @@ function Cart() {
   }, []);
   
 
-  const updateQuantity = async (id, change) => {
+  const updateQuantity = async (id, change  , productname, productsprice) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     let user = JSON.parse(localStorage.getItem("user"));
   
@@ -80,13 +80,14 @@ function Cart() {
       const cartData = {
         userid: user.id ?? 0,
         productid: existingProduct.productid ?? 0,
-        productname: existingProduct.productname || "Unknown", 
+        productname: productname|| "Unknown", 
+        price: productsprice || 0,
         quantity: existingProduct.quantity ?? 1,
       };
   
       console.log("Sending cart data:", cartData);
   
-      const response = await fetch("http://localhost:8081/api/products/cart", {  // Ensure correct API URL
+      const response = await fetch("http://localhost:8081/api/products/cart", {  
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cartData),
@@ -155,7 +156,7 @@ function Cart() {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
           <thead className="bg-gray-100">
-            <tr>
+            <tr className="">
               <th className="p-4 text-left">{t("productss")}</th>
               {/* <th className="p-4 text-center">Size</th> */}
               <th className="p-4 text-center">{t("quantity")}</th>
@@ -184,12 +185,12 @@ function Cart() {
                   <td className="p-4 text-center">
                     <div className="flex items-center justify-center    pace-x-3">
                       <button 
-                        onClick={() => updateQuantity(item.id, -1)}
+                        onClick={() => updateQuantity(item.id, -1, item.name , item.price)}
                         className="px-3 mr-4 py-1 border rounded-md hover:bg-gray-200"
                       >-</button>
                       <span className="mr-4 text-lg">{item.quantity}</span>
                       <button 
-                        onClick={() => updateQuantity(item.id, 1)}
+                        onClick={() => updateQuantity(item.id, 1, item.name , item.price)}
                         className="px-3 py-1 border rounded-md hover:bg-gray-200"
                       >+</button>
                     </div>
@@ -211,9 +212,9 @@ function Cart() {
 
       {/* Cart Summary */}
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-        <div className="flex justify-between text-lg">
-          <div>
-            <p>{t("discount")}: <span className="font-semibold">₹9.00</span></p>
+        <div className="sm:flex  sm:justify-between text-lg">
+          <div className="mb-4 sm:mb-0">
+            <p>{t("discount")}: <span className=" font-semibold">₹9.00</span></p>
             <p>{t("delivery")}: <span className="font-semibold">₹20.00</span></p>
           </div>
           <div>
