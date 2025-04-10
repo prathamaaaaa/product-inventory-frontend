@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTasks, FaUsers, FaProjectDiagram, FaBars, FaTimes } from "react-icons/fa";
+import { FaTasks, FaUsers, FaProjectDiagram, FaBars, FaTimes, FaPlus } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import axios from "axios";
@@ -191,14 +191,26 @@ function AdminPanel() {
           </NavLink>
 
           <NavLink
-            to="/admin/store"
-            className={({ isActive }) =>
-              `p-4 flex items-center space-x-3 cursor-pointer 
-       ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
-            }
-          >
-            <FaUsers /> <span>{t("stores")}</span>
-          </NavLink>
+  to="/admin/store"
+  className={({ isActive }) =>
+    `p-4 flex items-center space-x-3 cursor-pointer 
+     ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+  }
+>
+
+  <FaUsers /> <span>{t("stores")}</span>
+</NavLink>
+
+<NavLink
+  to="/admin/coupons"
+  className={({ isActive }) =>
+    `p-4 flex items-center space-x-3 cursor-pointer 
+     ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+  }
+>
+  <FaPlus /> <span>Add Coupons</span>
+</NavLink>
+
           <div className="relative inline-block">
             {/* Icon button to toggle dropdown */}
             <button

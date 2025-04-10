@@ -113,7 +113,7 @@ function List({ storeId }) {
         }))
     };
 
-    console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2)); // Debug JSON format
+    console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
 
     try {
         const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
@@ -207,11 +207,29 @@ const PreventBackOnList = () => {
     }
 
     if (searchQuery) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const lang = localStorage.getItem("language") || "en";
+    
+      filtered = filtered.filter(product => {
+        let nameInLang = "";
+    
+        if (typeof product.name === "object") {
+          nameInLang = product.name[lang] || product.name["en"] || "";
+        }
+    
+        else if (typeof product.name === "string") {
+          try {
+            const parsedName = JSON.parse(product.name);
+            nameInLang = parsedName[lang] || parsedName["en"] || "";
+          } catch (e) {
+            nameInLang = product.name;
+          }
+        }
+    
+        return nameInLang.toLowerCase().includes(searchQuery.toLowerCase());
+      });
     }
-
+    
+    
     if (selectedCategory) {
       filtered = filtered.filter(product => product.categoryName === selectedCategory);
     }
@@ -488,6 +506,7 @@ const PreventBackOnList = () => {
       </div>
       {/* Search and Filter Section */}
       <div className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-4">
+
         <input
           type="text"
           placeholder={t('searchPlaceholder')}

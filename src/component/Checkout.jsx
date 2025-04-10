@@ -457,9 +457,9 @@ console.log("Code :", code);
                     <button
                       type="submit"
                       className="bg-black hover:bg-gray-800 text-white py-2 px-6 rounded shadow-md transition"
-                      onClick={() => Swal.fire(t("orderPlaced"), t("orderPlacedSuccess"), t("success"))}
+                      onClick={() => navigate("/list")} 
                     >
-                      Check your Products
+                      Go to List
                     </button>
                   </div>
 

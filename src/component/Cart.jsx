@@ -86,6 +86,7 @@ useEffect(() => {
   fetchCoupons();
 }, []);
   const updateQuantity = async (id, change  , productname, productsprice) => {
+
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     let user = JSON.parse(localStorage.getItem("user"));
   
@@ -327,7 +328,7 @@ useEffect(() => {
   <h3 className="text-xl font-semibold text-gray-800 mb-4">Available Coupons</h3>
   <div className="space-y-4">
   {coupons.map((coupon, index) => {
-    const isDisabled = coupon.usercount >= 4;
+    const isDisabled = coupon.usercount > 10;
 
     return (
       <div

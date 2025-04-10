@@ -12,6 +12,8 @@ import CreateStore from "./component/CreateStore";
 import StoreDetail from "./component/StoreDetail";
 import Cart from "./component/Cart";
 import Checkout from "./component/Checkout";
+import Coupons from "./component/Coupons";
+import Addcoupon from "./component/Addcoupon";
 
 function App() {
   return (
@@ -27,13 +29,16 @@ function App() {
         {/* <Route path="/store" element={<Store />} /> */}
         <Route path="/store/:id" element={<StoreDetail />} /> 
         <Route path="/list" element={<List />} /> 
+        <Route path="/addcoupon" element={<Addcoupon />} /> 
+        <Route path="/coupons" element={<Coupons />} />
         <Route path="/cart" element={<Cart />} /> 
         <Route path="/checkout" element={<Checkout />} /> 
 
         <Route path="/admin" element={<AdminPanel />}>
-          <Route index element={<Navigate to="/admin/dashboard" />} />  {/* Default to Dashboard */}
-          <Route path="dashboard" element={<List />} />   {/* Dashboard will show List */}
-          <Route path="store" element={<Store />} />      {/* Clicking Store will show Store */}
+          <Route index element={<Navigate to="/admin/dashboard" />} />  \
+          <Route path="dashboard" element={<List />} />   
+          <Route path="store" element={<Store />} />    
+          <Route path="coupons" element={<Coupons />} />    
         </Route>
 
         <Route path="/admin/adminpanel" element={<AdminPanel />} />

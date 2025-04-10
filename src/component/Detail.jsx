@@ -4,6 +4,7 @@ import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 import { toast } from "react-toastify";
 function Detail() {
   const navigate = useNavigate();
@@ -129,7 +130,10 @@ function Detail() {
  
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
   console.log("Initial Local Storage:", cart);
+
+
   const AddtoCart = async (id, productName , price) => {
+    fetchCartDetails(); 
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     let user = JSON.parse(localStorage.getItem("user")); 
@@ -151,7 +155,7 @@ function Detail() {
     console.log("Initial Local Storage name:", productName);
 
     localStorage.setItem("cart", JSON.stringify(cart));
-
+    fetchCartDetails(); 
     console.log("Updated Local Storage:", JSON.parse(localStorage.getItem("cart")));
 
     if (user && user.id) {
