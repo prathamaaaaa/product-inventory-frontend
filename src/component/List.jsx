@@ -6,6 +6,10 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Globe, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
+
+
+
+
 function List({ storeId }) {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -68,6 +72,9 @@ function List({ storeId }) {
   const params = new URLSearchParams(location.search);
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const cart = JSON.parse(localStorage.getItem("cart"));
+// console.log("cart lengtj",cart.length)
+
 
   const handleLogout = () => {
     Swal.fire({
@@ -362,6 +369,7 @@ const PreventBackOnList = () => {
 
 
 
+
   return (
 
     <div className="bg-gray-50 text-gray-900 min-h-screen p-8">
@@ -374,24 +382,39 @@ const PreventBackOnList = () => {
 
           {(location.pathname.startsWith("/list")) && (
           <div className="lg:flex">
+<div className="relative mr-4 md:mb-0 mb-4 mt-2">
+  <span title="View Cart">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24" height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      onClick={() => navigate("/cart")}
+      className="lucide justify-self-center mb-2 lg:justify-self-end lucide-baggage-claim-icon lucide-baggage-claim"
+    >
+      <path d="M22 18H6a2 2 0 0 1-2-2V7a2 2 0 0 0-2-2" />
+      <path d="M17 14V4a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v10" />
+      <rect width="13" height="8" x="8" y="6" rx="1" />
+      <circle cx="18" cy="20" r="2" /><circle cx="9" cy="20" r="2" />
+    </svg>
+  </span>
 
-        <div className="mr-4 md:mb-0 mb-4 mt-2">
-          <span title="View Cart">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor"
-              strokeWidth={2}
-              onClick={() => navigate("/cart")}
-              className="lucide justify-self-end lucide-baggage-claim-icon lucide-baggage-claim">
-              <path d="M22 18H6a2 2 0 0 1-2-2V7a2 2 0 0 0-2-2" />
-              <path d="M17 14V4a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v10" />
-              <rect width="13" height="8" x="8" y="6" rx="1" />
-              <circle cx="18" cy="20" r="2" /><circle cx="9" cy="20" r="2" />
-            </svg>
-          </span>
-        </div>
+  {/* Notification bubble */}
+  {cart && cart.length > 0 && (
+    
+      <span className="absolute lg:-top-1 lg:-right-3 -top-2 right-16   bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
+        {cart.length}
+  
+      </span>
+  
+)}
+</div>
 
 
-            <div className="relative mb-4 md:mb-0 inline-block">
+
+            <div className="relative mb-2 lg:mb-0 inline-block">
 
               {/* Icon button to toggle dropdown */}
               <button
@@ -645,7 +668,7 @@ const PreventBackOnList = () => {
 
                 {/* Product Details */}
                 <div className="text-sm text-gray-600 mt-3 space-y-2">
-                  <p><strong>{t("price")}</strong> ${product.price}</p>
+                  <p><strong>{t("price")}</strong> {product.price}</p>
                   <p><strong>{t("category")}</strong> {product.categoryName || "N/A"}</p>
                   <p><strong>{t("subcategory")}</strong> {product.subCategoryName || "N/A"}</p>
                 </div>
