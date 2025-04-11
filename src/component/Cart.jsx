@@ -16,16 +16,15 @@ function Cart() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const { t, i18n } = useTranslation();
+  const [discountedPrice, setDiscountedPrice] = useState(0);
   const [coupons, setCoupons] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponCode, setCouponCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const [total, setTotal] = useState(0);
-
+  const [d, setd] = useState(0);
   const subtotal = Array.isArray(cartDetails) ? cartDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0) : 0;
-  // let total = subtotal + 20 - 9;; 
 
-  
   const handleCheckout = () => {
     if (!user) {
       Swal.fire({
@@ -206,7 +205,7 @@ const applyCouponFromCard = (code) => {
     );
   }
 };
-
+let discountedTotal = 0;
 
 useEffect(() => {
   const subtotal = Array.isArray(cartDetails)
@@ -216,19 +215,22 @@ useEffect(() => {
   const shipping = 20;
   const fixedDiscount = 9;
 
-  const discountedTotal = (subtotal + shipping - fixedDiscount) * (1 - discountPercent / 100);
+  // const discountedPrice = total - discountPercent / 100;
+   discountedTotal = (subtotal + shipping - fixedDiscount) * (1 - discountPercent / 100);
 
+   const d =(( total -(total - (discountPercent / 100)) )*total).toFixed(2);
+   console.log(d)
+   setd(d);
   setTotal(discountedTotal);
 }, [cartDetails, discountPercent]);
-
 
   return (
     <>
      <div className="bg-gray-100 w-full grid-cols-1 grid md:grid-cols-3">
      <div className="w-80% col-span-2">
       <h2 className="text-2xl justify-self-center m-16 font-semibold mb-4">{t("shoppingCart")} ({cartDetails.length} {t("items")})</h2>
-      <div className="container lg:px-[5%] bg-gray-100 w-full  px-6 py-8">
-  <div className=" lg:flex-row gap-8">
+      <div className="container lg:px-[12%] bg-gray-100 w-full  px-6 py-8">
+  <div className=" lg:flex-row gap-16">
     
     {/* Left Side: Cart Items */}
     <div className="w-full   p-6 shadow-md rounded-lg">
@@ -275,6 +277,8 @@ useEffect(() => {
     </div>
 
     {/* Right Side: Summary */}
+    {cartDetails.length > 0 ? (
+
     <div className="w-full  mt-10 bg-gray-300 p-6 rounded-lg shadow-md">
       <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
       {/* Item breakdown */}
@@ -292,7 +296,8 @@ useEffect(() => {
       </div>
       <div className="flex justify-between mb-4">
         <span>{t("discount")}</span>
-        <span>- ₹9.00</span>
+        <span>{d}</span>
+
       </div>
       <div className="border-t border-gray-300 my-4"></div>
     
@@ -317,55 +322,83 @@ useEffect(() => {
         {t("checkout")}
       </button>
     </div>
+    ) : (
+      <div className="w-full mt-10 bg-gray-300 p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
+        <p className="text-center text-gray-500">{t("cartEmpty")}</p>
+      </div>
+    )}
   </div>
 
 
 </div>
       </div>
-<div className="mt-8 text-center ">
-<div className="mt-8 px-6 py-6 bg-white">
+      <div className="mt-8 text-center">
+  <div className="mt-8 pl-6 py-6 bg-white">
+    <h3 className="text-xl font-semibold text-gray-800 mb-4">Available Coupons</h3>
 
-  <h3 className="text-xl font-semibold text-gray-800 mb-4">Available Coupons</h3>
-  <div className="space-y-4">
-  {coupons.map((coupon, index) => {
-    const isDisabled = coupon.usercount > 10;
+    <div className="space-y-8">
+    {coupons.map((coupon, index) => {
+  const isDisabled = coupon && coupon.usercount > 10;
 
-    return (
-      <div
-        key={index}
-        onClick={() => {
-          if (isDisabled) return; 
-          appliedCoupons(coupon.code);
-          toast.success(`${coupon.code} applied!`, {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }}
-        className={`relative flex justify-between items-center px-6 py-4 shadow-md overflow-hidden transition duration-200 
-          ${index % 3 === 0 ? "bg-red-500" : index % 3 === 1 ? "bg-yellow-500" : "bg-cyan-600"} 
-          ${isDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "text-white cursor-pointer"}
-        `}
-      >
-        <div>
-        <span className="text-xl font-bold uppercase">{coupon.discount}% OFF</span>
-<span className="text-sm">Use Code: <strong>{coupon.code}</strong></span>
-<span className="text-sm">Valid Until {coupon.expiry || "25 March 2025"}</span>
+  return (
+    <div
+      key={index}
+      onClick={() => {
+        if (isDisabled) return;
+        appliedCoupons(coupon.code);
+        toast.success(`${coupon.code} applied!`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }}
+      className={`relative w-full md:w-[450px] h-[220px] bg-cover bg-center rounded-xl overflow-hidden shadow-xl transition-transform transform hover:scale-105 mx-auto my-4 p-6 text-white ${
+        isDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "cursor-pointer"
+      }`}
+      style={{
+        backgroundImage: `url('https://images.unsplash.com/photo-1606312619344-b755b8c5cfb0?auto=format&fit=crop&w=800&q=80')`, // Replace with your image or dynamic one
+      }}
+    >
+      <div className="absolute inset-0 bg-gray-700 bg-opacity-50 z-0"></div>
+
+      <div className="relative z-10 flex flex-col justify-between h-full">
+        <div className="flex justify-between items-center">
+          <h2 className="text-6xl font-bold">{coupon.discount}% OFF</h2>
+          <div className="text-right">
+            <p className="text-sm uppercase">Use Code:</p>
+            <p className="text-xl font-extrabold">{coupon.code}</p>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-end mt-6">
+          <div>
+            <p className="text-sm">Valid Until</p>
+            <p className="text-md font-medium">{coupon.expiry || "25 March 2025"}</p>
+          </div>
+          <div>
+            <div>
+              Up to
+            </div>
+          <div className="text-3xl font-black bg-[#ffcc00] text-black px-4 py-1 rounded-lg shadow-lg">
+            ₹{coupon.minAmount || "250"}
+          </div>
+          </div>
         </div>
       </div>
-    );
-  })}
-</div>
+    </div>
+  );
+})}
 
-</div>
-
-
+    </div>
   </div>
+</div>
+
      </div>
     </>
   );

@@ -15,8 +15,8 @@ function StoreDetail() {
   const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
-  const [selectedStore, setSelectedStore] = useState(id); // ✅ Auto-select current store
-  const [admin, setAdmin] = useState(null); // ✅ Store Admin ID
+  const [selectedStore, setSelectedStore] = useState(id);
+  const [admin, setAdmin] = useState(null);
   const fetchProducts = () => {
     axios
       .get(`${BASE_URL}/api/stores/product/${id}`)

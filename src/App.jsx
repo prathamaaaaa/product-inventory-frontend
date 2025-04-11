@@ -14,6 +14,7 @@ import Cart from "./component/Cart";
 import Checkout from "./component/Checkout";
 import Coupons from "./component/Coupons";
 import Addcoupon from "./component/Addcoupon";
+import Orders from "./component/Orders";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/coupons" element={<Coupons />} />
         <Route path="/cart" element={<Cart />} /> 
         <Route path="/checkout" element={<Checkout />} /> 
+        <Route path="/orders" element={<Orders />} /> 
 
         <Route path="/admin" element={<AdminPanel />}>
           <Route index element={<Navigate to="/admin/dashboard" />} />  \

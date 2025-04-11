@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState  } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -6,8 +6,6 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Globe, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
-
-
 
 
 function List({ storeId }) {
@@ -644,41 +642,36 @@ const PreventBackOnList = () => {
 
                         </span>
 
-                      </div>
+                      </div>     
                     )}
                     {location.pathname.startsWith("/list") && (
   <span title="Add to Cart">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      onClick={() => {
-        const localizedName =
-        JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 576 512"
+  onClick={() => {
+    const localizedName =
+      JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
 
-        AddtoCart(product.id, product.name , product.price);
+    AddtoCart(product.id, product.name, product.price);
 
-        toast.success(`${localizedName} added to cart!`, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-      }}
-      className="lucide lucide-shopping-cart-icon lucide-shopping-cart"
-    >
-      <circle cx="8" cy="21" r="1" />
-      <circle cx="19" cy="21" r="1" />
-      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-    </svg>
+    toast.success(`${localizedName} added to cart!`, {
+      position: "top-center",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }}
+  className="w-6 h-6 fill-current text-gray-800 cursor-pointer"
+>
+  <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20l44 0 0 44c0 11 9 20 20 20s20-9 20-20l0-44 44 0c11 0 20-9 20-20s-9-20-20-20l-44 0 0-44c0-11-9-20-20-20s-20 9-20 20l0 44-44 0c-11 0-20 9-20 20z" />
+</svg>
+
+
   </span>
 )}
 

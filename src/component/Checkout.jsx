@@ -68,10 +68,17 @@ console.log("Code :", code);
   const amount= Math.round(Number(total) ) // => 4845 (valid for Razorpay)
   console.log("Cart :", cart);
 
-
+  let currentOrderId ='';
 
   const handleRazorpayPayment = async () => {
-
+    if (!cart.length && !singleProduct?.length) {
+      Swal.fire({
+        icon: "warning",
+        title: "Cart is Empty",
+        text: "Please add items to your cart before proceeding to payment.",
+      });
+      return;
+    }
     try {
 
 
@@ -123,6 +130,14 @@ console.log("Code :", code);
             };
             console.log("Payment Payload:", paymentPayload);
             await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
+            // const result = await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
+
+// Assuming result.data.orderId is returned
+ currentOrderId = response.razorpay_order_id;
+console.log("Current Order ID:", currentOrderId);
+// ✅ Save to localStorage
+localStorage.setItem("currentOrderId", currentOrderId);
+
 
             Swal.fire({
               icon: "success",
@@ -215,6 +230,7 @@ console.log("Code :", code);
       return false;
     }
   };
+
 
   return (
     <>
@@ -457,10 +473,10 @@ console.log("Code :", code);
                     <button
                       type="submit"
                       className="bg-black hover:bg-gray-800 text-white py-2 px-6 rounded shadow-md transition"
-                      onClick={() => navigate("/list")} 
-                    >
-                      Go to List
-                    </button>
+                      onClick={() => navigate("/orders", { state: { currentOrderId } })}
+                      >
+Check your order                  
+  </button>
                   </div>
 
                 )}
