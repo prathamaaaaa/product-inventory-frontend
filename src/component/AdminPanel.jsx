@@ -9,21 +9,15 @@ import { Outlet } from "react-router-dom";
 import Papa from "papaparse";
 
 import { useTranslation } from "react-i18next";
-import { Globe, ChevronDown } from "lucide-react";
+// import { Globe, ChevronDown } from "lucide-react";
 import i18n from "./i18n";
+import ChangeLanguage from "./BUttons/ChangeLanguage";
 
 function AdminPanel() {
 
   const [isOpen, setIsOpen] = useState(false);
 
   const { t } = useTranslation();
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    setIsOpen(false);
-    localStorage.setItem("language", lng);
-
-  };
 
 
 
@@ -213,7 +207,7 @@ function AdminPanel() {
 
           <div className="relative inline-block">
             {/* Icon button to toggle dropdown */}
-            <button
+            {/* <button
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center px-3 py-2  text-white rounded-md hover:bg-[#334155] hover:text-white transition"
             >
@@ -223,28 +217,9 @@ function AdminPanel() {
             </button>
 
             {isOpen && (
-              <div className="absolute right-0 mt-2 w-32 shadow-lg rounded-lg overflow-hidden border border-gray-200">
-                <button
-                  onClick={() => changeLanguage("en")}
-                  className="block w-full px-4 py-2 text-left hover:bg-[#334155]"
-                >
-                  English
-                </button>
-                
-                <button
-                  onClick={() => changeLanguage("hi")}
-                  className="block w-full px-4 py-2 text-left hover:bg-[#334155]"
-                >
-                  Hindi
-                </button>
-                <button
-                  onClick={() => changeLanguage("guj")}
-                  className="block w-full px-4 py-2 text-left hover:bg-[#334155]"
-                >
-                  Gujarati
-                </button>
-              </div>
-            )}
+        */}
+            <ChangeLanguage /> 
+            {/* )} */}
           </div>
         </ul>
 

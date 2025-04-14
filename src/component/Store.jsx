@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import DownloadCSVButton from "./BUttons/DownloadCSVButton";
 function Store() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
   const { t, i18n } = useTranslation();
@@ -71,23 +72,6 @@ function Store() {
     }
   }, [i18n]);
 
-  const handleDownloadCSV = (storeId) => {
-    axios.get(`${BASE_URL}/api/stores/download-csv/${storeId}`, { responseType: "blob" })
-      .then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `store_${storeId}_products.csv`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-        Swal.fire("Success!", "CSV file downloaded.", "success");
-      })
-      .catch(error => {
-        console.error("Error downloading CSV:", error);
-        Swal.fire("Error!", "Failed to download CSV.", "error");
-      });
-  };
 
   const handleDeleteStore = (storeId) => {
     Swal.fire({
@@ -161,12 +145,13 @@ function Store() {
               </button>
 
             <div className="p-4 rounded-lg mt-4">
-            <button
+            {/* <button
                 onClick={() => handleDownloadCSV(store.id)}
                 className="mt-4 bg-gray-300  px-4 py-2 rounded-lg hover:bg-gray-400 w-full"
               >
             {t("downloadCSV")}
-              </button>
+              </button> */}
+<DownloadCSVButton storeId={store.id} BASE_URL={BASE_URL} />
 
               {/* 🗑 Delete Store Button */}
               <button

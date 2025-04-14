@@ -1,24 +1,21 @@
-import { useEffect, useState  } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
-import { Globe, ChevronDown } from "lucide-react";
-import { toast } from "react-toastify";
+import { Globe, ChevronDown, Filter } from "lucide-react";
+import ChangeLanguage from "./BUttons/ChangeLanguage";
+import Filtering from "./Filtering";
+import AddToCart from "./BUttons/AddToCart";
 
 
 function List({ storeId }) {
   const { t, i18n } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
 
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    setLanguage(lng);
-    localStorage.setItem("language", lng);
-    setIsOpen(false);
-  };
+
+
   function CopyUrl() {
     const currentURL = new URL(window.location.href);
     currentURL.searchParams.set("lang", language);
@@ -47,9 +44,7 @@ function List({ storeId }) {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const DEFAULT_IMAGE = "https://dummyimage.com/150x150/ccc/000.png&text=No+Image";
@@ -57,7 +52,6 @@ function List({ storeId }) {
   const [copySuccess, setCopySuccess] = useState(false);
   const isAdminPanel = location.pathname.startsWith("/admin/dashboard");
   const navigate = useNavigate();
-  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [admin, setAdmin] = useState(() => {
     const storedAdmin = localStorage.getItem("admin");
     return storedAdmin ? JSON.parse(storedAdmin) : null;
@@ -71,94 +65,94 @@ function List({ storeId }) {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const cart = JSON.parse(localStorage.getItem("cart"));
-// console.log("cart lengtj",cart.length)
+  // console.log("cart lengtj",cart.length)
 
 
   const handleLogout = () => {
     Swal.fire({
-        title:t("title"),
-        text:t("text"),
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: t("confirm"),
-        cancelButtonText: t("cancel"),
+      title: t("title"),
+      text: t("text"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("confirm"),
+      cancelButtonText: t("cancel"),
     }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.removeItem("user");
-            Swal.fire(t("logout_title"),t("logout_message"), "success");
-            navigate("/list");
-        }
+      if (result.isConfirmed) {
+        localStorage.removeItem("user");
+        Swal.fire(t("logout_title"), t("logout_message"), "success");
+        navigate("/list");
+      }
     });
-};
+  };
 
   const syncCartWithDatabase = async (userId) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    console.log("uuuuuu",userId)
+    console.log("uuuuuu", userId)
 
     if (cart.length === 0) {
-        console.log("No items in local storage cart to sync.");
-        return;
+      console.log("No items in local storage cart to sync.");
+      return;
     }
 
     const cartData = {
-        userid: Number(user.id), 
-        cartItems: cart.map(item => ({
-            productid: Number(item.productid), 
-            productname: String(item.productname), 
-            quantity: Number(item.quantity) 
-        }))
+      userid: Number(user.id),
+      cartItems: cart.map(item => ({
+        productid: Number(item.productid),
+        productname: String(item.productname),
+        quantity: Number(item.quantity)
+      }))
     };
 
     console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
 
     try {
-        const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(cartData),
-        });
+      const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cartData),
+      });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(" Failed to sync local cart with database:", errorText);
-        } else {
-            console.log(" Local cart synced with database successfully.");
-        }
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(" Failed to sync local cart with database:", errorText);
+      } else {
+        console.log(" Local cart synced with database successfully.");
+      }
     } catch (error) {
-        console.error(" Error sending local cart to database:", error);
+      console.error(" Error sending local cart to database:", error);
     }
-};
+  };
 
 
 
 
 
-const PreventBackOnList = () => {
-  const location = useLocation();
-  const isLoggedIn = localStorage.getItem("user"); 
+  const PreventBackOnList = () => {
+    const location = useLocation();
+    const isLoggedIn = localStorage.getItem("user");
 
-  useEffect(() => {
-    if (isLoggedIn && location.pathname === "/list") {
-      window.history.pushState(null, "", window.location.href);
-
-      const handlePopState = () => {
+    useEffect(() => {
+      if (isLoggedIn && location.pathname === "/list") {
         window.history.pushState(null, "", window.location.href);
-      };
 
-      window.addEventListener("popstate", handlePopState);
+        const handlePopState = () => {
+          window.history.pushState(null, "", window.location.href);
+        };
 
-      return () => {
-        window.removeEventListener("popstate", handlePopState);
-      };
-    }
-  }, [location.pathname, isLoggedIn]);
+        window.addEventListener("popstate", handlePopState);
 
-  return null;
-};
+        return () => {
+          window.removeEventListener("popstate", handlePopState);
+        };
+      }
+    }, [location.pathname, isLoggedIn]);
+
+    return null;
+  };
 
 
 
@@ -191,70 +185,6 @@ const PreventBackOnList = () => {
         setLoading(false);
       });
   }, []);
-
-  useEffect(() => {
-    let filtered = products;
-
-
-    if (storeId) {
-      filtered = filtered.filter(product => product.storeId == storeId);
-    }
-
-    if (isAdminPanel && admin?.id) {
-      filtered = filtered.filter(product => product.adminid == admin.id);
-    }
-
-    if (searchQuery) {
-      const lang = localStorage.getItem("language") || "en";
-    
-      filtered = filtered.filter(product => {
-        let nameInLang = "";
-    
-        if (typeof product.name === "object") {
-          nameInLang = product.name[lang] || product.name["en"] || "";
-        }
-    
-        else if (typeof product.name === "string") {
-          try {
-            const parsedName = JSON.parse(product.name);
-            nameInLang = parsedName[lang] || parsedName["en"] || "";
-          } catch (e) {
-            nameInLang = product.name;
-          }
-        }
-    
-        return nameInLang.toLowerCase().includes(searchQuery.toLowerCase());
-      });
-    }
-    
-    
-    if (selectedCategory) {
-      filtered = filtered.filter(product => product.categoryName === selectedCategory);
-    }
-
-    if (selectedSubCategory) {
-      filtered = filtered.filter(product => product.subCategoryName === selectedSubCategory);
-    }
-
-    setFilteredProducts(filtered);
-  }, [searchQuery, selectedCategory, selectedSubCategory, products, storeId, isAdminPanel, admin]);
-
-  useEffect(() => {
-    if (selectedCategory) {
-
-      const updatedSubCategories = subCategories.filter(
-        (subCategory) => subCategory.categoryName === selectedCategory
-      );
-
-      setFilteredSubCategories(updatedSubCategories);
-      setFilteredProducts(products.filter((product) => product.categoryName === selectedCategory));
-      setSelectedSubCategory("");
-    } else {
-
-      setFilteredProducts(products);
-      setFilteredSubCategories([]);
-    }
-  }, [selectedCategory, subCategories, products]);
 
 
   if (loading) return <p className="text-center text-lg">{t("loading")}</p>;
@@ -317,180 +247,76 @@ const PreventBackOnList = () => {
 
 
 
-
- 
-
-
-
-
-
-  const AddtoCart = async (id, productName , price) => {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    let user = JSON.parse(localStorage.getItem("user")); 
-
-    console.log("Initial Local Storage name:", productName);
-    
-    let updatedProduct = null;
-    const existingProductIndex = cart.findIndex((item) => item.productid === id);
-
-    if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += 1;
-        updatedProduct = cart[existingProductIndex];
-    } else {
-        updatedProduct = { productid: id, 
-          productname: productName
-          , quantity: 1 , price: price };
-        cart.push(updatedProduct);
-    }
-    console.log("Initial Local Storage name:", productName);
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    console.log("Updated Local Storage:", JSON.parse(localStorage.getItem("cart")));
-
-    if (user && user.id) {
-        try {
-            const cartData = {
-                userid: user.id, 
-                productid: updatedProduct.productid,
-                productname: productName,
-                quantity: updatedProduct.quantity
-            };
-
-            const response = await fetch("http://localhost:8081/api/products/cart", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(cartData),
-            });
-
-            if (response.ok) {
-                console.log("Cart item saved in database successfully.");
-            } else {
-                console.error("Failed to save cart item in database.");
-            }
-        } catch (error) {
-            console.error("Error sending cart item to database:", error);
-        }
-    } else {
-        console.log("User not logged in. Cart stored only in local storage.");
-    }
-};
-
-
-
-
-
-
-
-
   return (
 
     <div className="bg-gray-50 text-gray-900 min-h-screen p-8">
-<PreventBackOnList />
+      <PreventBackOnList />
 
       {/* header sections  */}
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
-       
 
-          {(location.pathname.startsWith("/list")) && (
+
+        {(location.pathname.startsWith("/list")) && (
           <div className="lg:flex">
-<div className="relative mr-4 md:mb-0 mb-4 mt-2">
-  <span title="View Cart">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24" height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      onClick={() => navigate("/cart")}
-      className="lucide justify-self-center mb-2 lg:justify-self-end lucide-baggage-claim-icon lucide-baggage-claim"
-    >
-      <path d="M22 18H6a2 2 0 0 1-2-2V7a2 2 0 0 0-2-2" />
-      <path d="M17 14V4a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v10" />
-      <rect width="13" height="8" x="8" y="6" rx="1" />
-      <circle cx="18" cy="20" r="2" /><circle cx="9" cy="20" r="2" />
-    </svg>
-  </span>
+            <div className="relative mr-4 md:mb-0 mb-4 mt-2">
+              <span title="View Cart">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24" height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  onClick={() => navigate("/cart")}
+                  className="lucide justify-self-center mb-2 lg:justify-self-end lucide-baggage-claim-icon lucide-baggage-claim"
+                >
+                  <path d="M22 18H6a2 2 0 0 1-2-2V7a2 2 0 0 0-2-2" />
+                  <path d="M17 14V4a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v10" />
+                  <rect width="13" height="8" x="8" y="6" rx="1" />
+                  <circle cx="18" cy="20" r="2" /><circle cx="9" cy="20" r="2" />
+                </svg>
+              </span>
 
-  {/* Notification bubble */}
-  {cart && cart.length > 0 && (
-    
-      <span className="absolute lg:-top-1 lg:-right-3 -top-2 right-16   bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
-        {cart.length}
-  
-      </span>
-  
-)}
-</div>
+              {/* Notification bubble */}
+              {cart && cart.length > 0 && (
 
+                <span className="absolute lg:-top-1 lg:-right-3 -top-2 right-16   bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
+                  {cart.length}
 
+                </span>
 
-            <div className="relative mb-2 lg:mb-0 inline-block">
-
-              {/* Icon button to toggle dropdown */}
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition"
-              >
-                select Language
-                <Globe className="w-5 ml-2 h-5 mr-1" />
-                <ChevronDown className="w-4 h-4" />
-              </button>
-
-              {/* Language dropdown */}
-              {isOpen && (
-
-                <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
-                  <button
-                    onClick={() => changeLanguage("en")}
-                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                  >
-                    English
-                  </button>
-
-                  <button
-                    onClick={() => changeLanguage("hi")}
-                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                  >
-                    Hindi
-                  </button>
-                  <button
-                    onClick={() => changeLanguage("guj")}
-                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                  >
-                    Gujarati
-                  </button>
-                  
-                
-                </div>
               )}
             </div>
-        
+
+
+
+            <div className="relative mb-2 bg-gray-500  rounded lg:mb-0 inline-block">
+
+
+              <ChangeLanguage className=""></ChangeLanguage>
+            </div>
+
             <div>
-      {user ? (
-        <button 
-          onClick={handleLogout} 
-          className="bg-red-600 ml-4 text-white px-6 py-2 rounded hover:bg-red-700"
-        >
-          Logout
-        </button>
-      ) : (
-        <button 
-          onClick={() => navigate("/auth", { state: { role: "user" } })} 
-          className="bg-indigo-600 ml-4 text-white px-6 py-2 rounded hover:bg-indigo-700"
-        >
-          Login
-        </button>
-      )}
-    </div>
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 ml-4 text-white px-6 py-2 rounded hover:bg-red-700"
+                >
+                  Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate("/auth", { state: { role: "user" } })}
+                  className="bg-indigo-600 ml-4 text-white px-6 py-2 rounded hover:bg-indigo-700"
+                >
+                  Login
+                </button>
+              )}
+            </div>
 
           </div>
-                  )}
+        )}
         {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}
 
         {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
@@ -503,57 +329,9 @@ const PreventBackOnList = () => {
         )}
       </div>
       {/* Search and Filter Section */}
-      <div className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-4">
 
-        <input
-          type="text"
-          placeholder={t('searchPlaceholder')}
-          className="p-2 border border-gray-300 rounded-lg w-full md:w-1/3"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        {/*  Category Dropdown */}
-        <select
-          className="p-2 border border-gray-300 rounded-lg w-full md:w-1/4"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value=""> {t("allCategories")}</option>
-          {categories
-            .filter(category =>
-              storeId ? parseInt(category.storeid) === parseInt(storeId) : true
-            )
-            .map((category) => (
-              <option key={category.id} value={category.name}>{category.name}</option>
-            ))}
-        </select>
 
-        {/*  SubCategory Dropdown */}
-        <select
-          className="p-2 border border-gray-300 rounded-lg w-full md:w-1/4"
-          value={selectedSubCategory}
-          onChange={(e) => setSelectedSubCategory(e.target.value)}
-          disabled={!selectedCategory}
-        >
-          <option value="">{t("allSubcategories")}</option>
-          {filteredSubCategories.map((subCategory) => (
-            <option key={subCategory.id} value={subCategory.name}>{subCategory.name}</option>
-          ))}
-        </select>
-
-        {/* Reset Button */}
-        <button
-          className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
-          onClick={() => {
-            setSearchQuery("");
-            setSelectedCategory("");
-            setSelectedSubCategory("");
-          }}
-        >
-          {t("reset")}
-        </button>
-      </div>
-
+      <Filtering t={t} storeId={storeId} categories={categories} subCategories={subCategories} products={products} isAdminPanel={isAdminPanel} admin={admin} onFilter={setFilteredProducts} />
       {/*  Product Grid */}
 
 
@@ -642,38 +420,14 @@ const PreventBackOnList = () => {
 
                         </span>
 
-                      </div>     
+                      </div>
                     )}
                     {location.pathname.startsWith("/list") && (
-  <span title="Add to Cart">
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 576 512"
-  onClick={() => {
-    const localizedName =
-      JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
-
-    AddtoCart(product.id, product.name, product.price);
-
-    toast.success(`${localizedName} added to cart!`, {
-      position: "top-center",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  }}
-  className="w-6 h-6 fill-current text-gray-800 cursor-pointer"
->
-  <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20l44 0 0 44c0 11 9 20 20 20s20-9 20-20l0-44 44 0c11 0 20-9 20-20s-9-20-20-20l-44 0 0-44c0-11-9-20-20-20s-20 9-20 20l0 44-44 0c-11 0-20 9-20 20z" />
-</svg>
-
-
-  </span>
-)}
+                 <div>
+                      
+                      <AddToCart language={language} product={product}  />
+                 </div>
+                    )}
 
                   </div>
                 </h2>

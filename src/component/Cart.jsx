@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 
-
 function Cart() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
   const [cartDetails, setCartDetails] = useState([]);
@@ -398,7 +397,6 @@ useEffect(() => {
     </div>
   </div>
 </div>
-
      </div>
     </>
   );

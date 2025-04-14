@@ -15,6 +15,7 @@ import Checkout from "./component/Checkout";
 import Coupons from "./component/Coupons";
 import Addcoupon from "./component/Addcoupon";
 import Orders from "./component/Orders";
+import Coupon from "./component/Coupon";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/createstore" element={<CreateStore />} />
         {/* <Route path="/store" element={<Store />} /> */}
         <Route path="/store/:id" element={<StoreDetail />} /> 
+        <Route path="/coupon" element={<Coupon />} />
         <Route path="/list" element={<List />} /> 
         <Route path="/addcoupon" element={<Addcoupon />} /> 
         <Route path="/coupons" element={<Coupons />} />
