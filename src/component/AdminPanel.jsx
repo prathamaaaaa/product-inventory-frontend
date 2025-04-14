@@ -205,7 +205,7 @@ function AdminPanel() {
   <FaPlus /> <span>Add Coupons</span>
 </NavLink>
 
-          <div className="relative inline-block">
+          <div className="relative inline-block text-white rounded-md hover:bg-[#334155] hover:text-white">
             {/* Icon button to toggle dropdown */}
             {/* <button
               onClick={() => setIsOpen(!isOpen)}
@@ -289,6 +289,7 @@ function AdminPanel() {
         </div>
 
         {/* Product List Section */}
+   
         <Outlet />
       </div>
     </div>

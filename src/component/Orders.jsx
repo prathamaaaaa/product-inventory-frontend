@@ -17,7 +17,7 @@ export default function Orders() {
   const location = useLocation();
   const DEFAULT_IMAGE = "https://dummyimage.com/150x150/ccc/000.png&text=No+Image";
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
-  const { t } = useTranslation();
+  const { t , i18n  } = useTranslation();
   const navigate = useNavigate();
   const [pastOrderslength, setPastOrderslength] = useState(0);
   const currentOrderId =
@@ -28,46 +28,28 @@ export default function Orders() {
 
 // let pastOL= 0;
   // Fetch all orders
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8081/api/checkout/orders/${user.id}`
+      );
+      setOrders(res.data);
+      setPastOrderslength(res.data.length);
+      console.log(res.data.length);
+    } catch (err) {
+      console.error("Error fetching orders", err);
+    }
+  };
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:8081/api/checkout/orders/${user.id}`
-        );
-        setOrders(res.data);
-        setPastOrderslength(res.data.length);
-        console.log(res.data.length);
-      } catch (err) {
-        console.error("Error fetching orders", err);
-      }
-    };
     fetchOrders();
   }, [user.id]);
 
-
-
-  const cancelOrder = async (orderId ,productId) => {
-    console.log("Canceling order:", orderId, productId);
-    try {
-      const response = await fetch(`http://localhost:8081/api/checkout/order/${orderId}/${productId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  useEffect(() => {
+    setLanguage(i18n.language);
+  }, [i18n.language]);
   
-      if (response.ok) {
-        toast.success("Order cancelled successfully!");
-        // Optional: Refresh orders from backend or filter out the cancelled one
-        setRecentOrders(prev => prev.filter(order => order.orderid !== orderId));
-      } else {
-        toast.error("Failed to cancel order. Try again!");
-      }
-    } catch (error) {
-      console.error("Cancel error:", error);
-      toast.error("Something went wrong!");
-    }
-  };
+
+  
   
   // Fetch product details for unique product IDs
   useEffect(() => {
@@ -112,32 +94,50 @@ export default function Orders() {
       year: "numeric",
     });
 
+
+    const cancelOrder = async (orderId ,productId) => {
+      console.log("Canceling order:", orderId, productId);
+      try {
+        const response = await fetch(`http://localhost:8081/api/checkout/order/${orderId}/${productId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
+        if (response.ok) {
+          toast.success("Order cancelled successfully!");
+          setRecentOrders(prev => prev.filter(order => order.orderid !== orderId));
+          fetchOrders();
+        } else {
+          toast.error("Failed to cancel order. Try again!");
+        }
+      } catch (error) {
+        console.error("Cancel error:", error);
+        toast.error("Something went wrong!");
+      }
+    };
   return (
     <>
       <div>
-        <div className=" w-[80%] mx-auto p-6 bg-gray-100 min-h-screen font-sans">
+        <div className=" lg:w-[80%] w-[100%] mx-auto p-6 bg-gray-100 min-h-screen font-sans">
 
-          <h2 className="text-3xl font-semibold mb-6 justify-self-center text-gray-800">My Orders</h2>
-          <div className="m-10">
-            <button onClick={() => navigate("/list")} className="text-primary hover:underline">
-              {t("backToList")}      </button>
-
-
-          </div>
+          <h2 className="text-3xl font-semibold mb-6 justify-self-center text-gray-800">{t("otitle")}</h2>
+ 
           {recentOrders.length > 0 && (
   <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-8">
     {/* Order Summary Header */}
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
       <div>
         <p className="text-sm text-gray-500">
-          Order Placed: {formatDate(recentOrders[0].orderdate)}
+        {t("orderPlaced")}: {formatDate(recentOrders[0].orderdate)}
         </p>
         <p className="text-sm font-medium text-gray-600">
-          Order #{recentOrders[0].orderid}
+        {t("orderNumber")}{recentOrders[0].orderid}
         </p>
       </div>
       <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm mt-4 sm:mt-0">
-        Trake Order
+      {t("trackOrder")}
       </button>
     </div>
 
@@ -178,9 +178,9 @@ export default function Orders() {
                 <p className="text-gray-500 text-sm sm:text-base">
                   {product?.details}
                 </p>
-                <p className=" mt-4">Qty: {order.quantity}</p>
-                <p className="mt-1 text-xl font-semibold text-black">
-                 Price : ₹ {order.price}
+                <p className=" mt-4">{t("qty")}: {order.quantity}</p>
+                <p className="mt-1 md:text-xl text-md font-semibold text-black">
+                {t("priceo")} : ₹ {order.price}
                 </p>
               </div>
               {/* <div className="text-sm sm:text-base text-gray-600 mt-2">
@@ -193,12 +193,12 @@ export default function Orders() {
 
             {/* Delivery Info */}
             <div className="md:text-bottom flex  md:items-end  mr-4 items-end justify-between flex-col  md:col-span-1">
-            <div className=" bg-gray-300 px-4 py-2 font-semibold rounded">
-              <button onClick={() => cancelOrder( order.orderid,order.productid )}>Cancel order</button>
+            <div className=" bg-gray-300 md:px-4 md:py-2 px-2 py-2 font-semibold rounded">
+              <button  onClick={() => cancelOrder( order.orderid,order.productid )}>{t("cancelOrder")}</button>
             </div>
               <div className="text-right mt-4 md:mt-0">
-              <p className="text-xl text-gray-500">Delivery Expected by</p>
-              <p className="text-base sm:text-lg font-medium text-gray-700">
+              <p className="md:text-xl text-sm text-gray-500">{t("deliveryExpected")}</p>
+              <p className="text-base md:text-lg  font-medium text-gray-700">
                 24 April 2025
               </p>
               </div>
@@ -211,16 +211,16 @@ export default function Orders() {
     {/* Total */}
     <div className="flex justify-end border-t pt-4 mt-6">
       <p className="font-semibold text-gray-800 mr-4 text-lg">
-        Total: ₹{" "}
+        {t("total")}: ₹{" "}
         {recentOrders.reduce((sum, item) => sum + item.price, 0)}
       </p>
     </div>
   </div>
 )}
-<div className="flex justify-between">
+<div className="md:flex  md:justify-between">
   
-<h3 className=" font-semibold text-gray-700 justify-self-center text-4xl mb-4">📦 Past Orders</h3>
-          <h3 className="text-2xl">Total Orders : {pastOrderslength}</h3>
+<h3 className=" font-semibold text-gray-700 justify-self-center text-2xl md:text-4xl mb-4">📦 Past Orders</h3>
+          <h3 className="text-2xl justify-self-center">{t("pastOrders")}: {pastOrderslength}</h3>
 </div>
           {pastOrders.length > 0 ? (
 
@@ -234,16 +234,16 @@ export default function Orders() {
                   <div className="flex ml-4 justify-between items-center mb-4">
                     <div>
                       <p className="text-sm text-gray-500">
-                        Order Placed: {formatDate(order.orderdate)}
+                        {t("orderPlaced")} {formatDate(order.orderdate)}
                       </p>
                       <p className="text-sm font-medium text-gray-600">
-                        Order #{order.orderid}
+                      {t("orderNumber")}{order.orderid}
                       </p>
                     </div>
 
                   </div>
 
-                  <div className="flex items-start gap-4  pt-4 mb-4">
+                  <div className="sm:flex  sm:items-start gap-4  pt-4 mb-4">
                     {/* Product Image */}
 
                     <div className=" flex justify-center">
@@ -261,24 +261,26 @@ export default function Orders() {
                         />
                       )}
                     </div>
-                    <div className="flex-1 mt-4">
+                 <div className="flex-1 flex justify-between items-start">
+                 <div className="flex-1 mt-4">
                       <p className="font-bold text-2xl text-gray-800 mb-1">
                         {(product?.name?.[language]) || order.productname?.[language] || { en: "ennn", guj: "GUJ", hi: "hi" }[language]}
                       </p>
-                      <p className="text-lg text-gray-500">{product?.details}</p>
+                      <p className="md:text-lg text-sm text-gray-500">{product?.details}</p>
                       <div className="text-sm text-gray-600 mt-2">
 
-                        <p className="text-lg">Qty: {order.quantity}</p>
-                        <p className="text-xl mt-2">Rs. {order.price}</p>
+                        <p className="text-sm md:text-lg">{t("qty")}: {order.quantity}</p>
+                        <p className="md:text-xl text-sm mt-2"> {t("priceo")} . {order.price}</p>
                       </div>
                     </div>
                     <div className="text-right mt-4 mr-4">
-                      <p className="text-green-600 font-semibold text-2xl mb-1">Delivered</p>
-                      <p className=" text-gray-500 text-xl">Delivered On</p>
-                      <p className="text-xl font-medium text-gray-700">
+                      <p className="text-green-600 font-semibold text-sm md:text-2xl mb-1">{t("delivered")}</p>
+                      <p className=" text-gray-500 text-sm md:text-xl">{t("deliveredOn")}</p>
+                      <p className="md:text-xl text-sm font-medium text-gray-700">
                         {formatDate(order.orderdate)}
                       </p>
                     </div>
+                 </div>
                   </div>
 
                   <div className="flex justify-end border-t pt-4 mt-4">
@@ -288,7 +290,7 @@ export default function Orders() {
               );
             })
           ) : (
-            <p>No past orders found.</p>
+            <p>{t("noPastOrders")}</p>
           )}
 
         </div>

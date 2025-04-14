@@ -8,7 +8,7 @@ function Filtering({t ,storeId, categories, subCategories,products, isAdminPanel
   // const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
-
+  
  
   useEffect(() => {
     let filtered = products;
@@ -78,7 +78,7 @@ function Filtering({t ,storeId, categories, subCategories,products, isAdminPanel
   return (
     <div>
 
-<div className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-4">
+<div className="bg-[#FDFAF6] p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-4">
 
 <input
   type="text"

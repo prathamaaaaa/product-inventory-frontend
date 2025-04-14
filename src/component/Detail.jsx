@@ -258,42 +258,7 @@ function Detail() {
               <h1 className="text-2xl font-bold text-gray-900">
 {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
               </h1> 
-              {(location.pathname.startsWith("/detail/")) && (
-
-<span title="Add to Cart">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      onClick={() => {
-        const localizedName =
-        JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
-
-        AddtoCart(product.id, product.name , product.price);
-
-        toast.success(`${localizedName} added to cart!`, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-      }}
-      className="lucide lucide-shopping-cart-icon lucide-shopping-cart"
-    >
-      <circle cx="8" cy="21" r="1" />
-      <circle cx="19" cy="21" r="1" />
-      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-    </svg>
-  </span>
-)}
+          
 </div>
               <p className="text-gray-600 text-sm">{product.categoryName} / {product.subCategoryName}</p>
 
@@ -341,9 +306,32 @@ function Detail() {
 
 
               {/* Price & Buy Button */}
-              <div className="mt-6 flex justify-between items-center">
-                <p className="text-3xl font-bold text-gray-900">${product.price}</p>
-                <button
+              <div className="mt-6 md:flex justify-between items-center">
+                <p className="text-3xl justify-self-center mb-4 font-bold text-gray-900">${product.price}</p>
+                <div className="flex justify-center ">
+                  <div className="mr-4 mb-4 justify-self-center">
+                    <button
+                        onClick={() => {
+                          const localizedName =
+                          JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
+                  
+                          AddtoCart(product.id, product.name , product.price);
+                  
+                          toast.success(`${localizedName} added to cart!`, {
+                            position: "top-right",
+                            autoClose: 2000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                          });
+                        }}
+                    className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400  text-white font-bold  rounded-lg ">Add to cart</button>
+                  </div>
+                  <div className="justify-self-center">
+                  <button
                 
                 onClick={() => {
                   const selectedProduct = {
@@ -363,6 +351,8 @@ function Detail() {
                 className="px-6 py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-orange-600 transition">
                   {t("buy")}
                 </button>
+                  </div>
+                </div>
               </div>
             </div>
 

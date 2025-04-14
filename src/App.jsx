@@ -15,7 +15,8 @@ import Checkout from "./component/Checkout";
 import Coupons from "./component/Coupons";
 import Addcoupon from "./component/Addcoupon";
 import Orders from "./component/Orders";
-import Coupon from "./component/Coupon";
+import Header from "./component/Header";
+import Dashboard from "./component/Dashboard";
 
 function App() {
   return (
@@ -30,16 +31,24 @@ function App() {
         <Route path="/createstore" element={<CreateStore />} />
         {/* <Route path="/store" element={<Store />} /> */}
         <Route path="/store/:id" element={<StoreDetail />} /> 
-        <Route path="/coupon" element={<Coupon />} />
-        <Route path="/list" element={<List />} /> 
         <Route path="/addcoupon" element={<Addcoupon />} /> 
         <Route path="/coupons" element={<Coupons />} />
-        <Route path="/cart" element={<Cart />} /> 
         <Route path="/checkout" element={<Checkout />} /> 
-        <Route path="/orders" element={<Orders />} /> 
+        {/* <Route path="/orders" element={<Orders />} />  */}
+
+        <Route path="/" element={<Header />} >
+
+          <Route index element={<Navigate to="/list" />} />  
+          <Route path="/orders" element={<Orders />} />    
+          <Route path="/cart" element={<Cart />} />   
+          <Route path="/list" element={<List />} />    
+
+ 
+
+        </Route> 
 
         <Route path="/admin" element={<AdminPanel />}>
-          <Route index element={<Navigate to="/admin/dashboard" />} />  \
+          <Route index element={<Navigate to="/admin/dashboard" />} />  
           <Route path="dashboard" element={<List />} />   
           <Route path="store" element={<Store />} />    
           <Route path="coupons" element={<Coupons />} />    

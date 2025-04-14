@@ -52,11 +52,11 @@ console.log(coupon,"coupon")
           >
             {t("backToList")}
           </button>
-      <h2 className="text-2xl font-bold mb-6 text-center">Add New Coupon</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">{t("addNewCoupon")}</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
 
         <div>
-          <label className="block font-medium mb-1">Code</label>
+          <label className="block font-medium mb-1">{t("couponCode")}</label>
           <input
             type="text"
             name="code"
@@ -68,7 +68,7 @@ console.log(coupon,"coupon")
         </div>
 
         <div>
-          <label className="block font-medium mb-1">Discount (%)</label>
+          <label className="block font-medium mb-1">{t("discount")}</label>
           <input
             type="number"
             name="discount"
@@ -80,7 +80,7 @@ console.log(coupon,"coupon")
         </div>
 
         <div>
-          <label className="block font-medium mb-1">Minimum Amount (₹)</label>
+          <label className="block font-medium mb-1">{t("minAmount")}</label>
           <input
             type="number"
             name="minAmount"
@@ -100,7 +100,7 @@ console.log(coupon,"coupon")
             checked={coupon.isActive}
             onChange={handleChange}
           />
-          <label className="font-medium">Active</label>
+          <label className="font-medium">{t("active")}</label>
         </div>
 
         <button
@@ -108,8 +108,9 @@ console.log(coupon,"coupon")
           className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
         >
           <FaSave />
-          Save Coupon
-        </button>
+          {t("saveCoupon")}
+          
+          </button>
       </form>
     </div>
   );

@@ -1,9 +1,10 @@
 import React from 'react'
+import Header from './Header'
 
 function Dashboard() {
   return (
     <div>
-
+      
 <div className={`flex flex-col flex-grow transition-all duration-300 ${isSidebarOpen ? "lg:ml-[16rem]" : ""}`}>
         {/* Header with Sidebar Toggle Button */}
         <div className="bg-white p-5 shadow flex justify-between items-center">
@@ -23,7 +24,6 @@ function Dashboard() {
            
           </div>
         </div>
-
         {/* Dashboard Cards */}
         <div className="flex justify-center">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
@@ -57,6 +57,9 @@ function Dashboard() {
         </div>
 
         {/* Product List Section */}
+        <div>
+        <div>All product List</div>
+      </div>
         <List />
       </div>
     </div>

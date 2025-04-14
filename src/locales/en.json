@@ -1,6 +1,6 @@
 {
   "welcome": "Welcome",
-  "productList": "📦 Product List",
+  "productList": "📦 Product Inventory",
   "addProduct": "➕ Add Product",
   "searchPlaceholder": "🔍 Search product...",
   "allCategories": "All Categories",
@@ -148,7 +148,43 @@
 "cancel": "Cancel",
 "logout_title": "Logged Out",
   "logout_message": "You have been logged out.",
-  "logout_icon": "success"
+  "logout_icon": "success",
+
+
+  "otitle": "My Orders",
+  "orderPlaced": "Order Placed",
+  "orderNumber": "Order #",
+  "trackOrder": "Track Order",
+  "qty": "Qty",
+  "priceo": "Price",
+  "cancelOrder": "Cancel Order",
+  "deliveryExpected": "Delivery Expected by",
+  "pastOrders": "📦 Past Orders",
+  "totalOrders": "Total Orders",
+  "delivered": "Delivered",
+  "deliveredOn": "Delivered On",
+  "noPastOrders": "No past orders found.",
+    "List": "List",
+  "Orders": "Orders",
+
+  "Available Coupons": "Available Coupons",
+  "Add Coupons": "Add Coupons",
+  "Code": "Code",
+  "Discount": "Discount",
+  "Used": "Used",
+  "Available": "Available",
+  "Deactivate": "Deactivate",
+  "Delete": "Delete",
+  "activate": "Activate",
+  "noActiveCoupons": "No active coupons available.",
+  "couponExpired": "Coupon expired",
+
+  "addNewCoupon": "Add New Coupon",
+  "couponCode": "Code",
+  "discount": "Discount (%)",
+  "minAmount": "Minimum Amount (₹)",
+  "active": "Active",
+  "saveCoupon": "Save Coupon"
 
 
 }

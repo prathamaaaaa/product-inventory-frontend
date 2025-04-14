@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -8,13 +8,17 @@ import { Globe, ChevronDown, Filter } from "lucide-react";
 import ChangeLanguage from "./BUttons/ChangeLanguage";
 import Filtering from "./Filtering";
 import AddToCart from "./BUttons/AddToCart";
+import ViewCart from "./BUttons/ViewCart";
 
 
 function List({ storeId }) {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
 
-
+  useEffect(() => {
+    setLanguage(i18n.language);
+  }, [i18n.language]);
+  
 
   function CopyUrl() {
     const currentURL = new URL(window.location.href);
@@ -68,24 +72,24 @@ function List({ storeId }) {
   // console.log("cart lengtj",cart.length)
 
 
-  const handleLogout = () => {
-    Swal.fire({
-      title: t("title"),
-      text: t("text"),
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("confirm"),
-      cancelButtonText: t("cancel"),
-    }).then((result) => {
-      if (result.isConfirmed) {
-        localStorage.removeItem("user");
-        Swal.fire(t("logout_title"), t("logout_message"), "success");
-        navigate("/list");
-      }
-    });
-  };
+  // const handleLogout = () => {
+  //   Swal.fire({
+  //     title: t("title"),
+  //     text: t("text"),
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: t("confirm"),
+  //     cancelButtonText: t("cancel"),
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       localStorage.removeItem("user");
+  //       Swal.fire(t("logout_title"), t("logout_message"), "success");
+  //       navigate("/list");
+  //     }
+  //   });
+  // };
 
   const syncCartWithDatabase = async (userId) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -249,85 +253,25 @@ function List({ storeId }) {
 
   return (
 
-    <div className="bg-gray-50 text-gray-900 min-h-screen p-8">
+    <div className="bg-[#FBFBFB] text-gray-900 min-h-screen p-8">
       <PreventBackOnList />
 
       {/* header sections  */}
+        {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
       <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
 
 
-        {(location.pathname.startsWith("/list")) && (
-          <div className="lg:flex">
-            <div className="relative mr-4 md:mb-0 mb-4 mt-2">
-              <span title="View Cart">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24" height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  onClick={() => navigate("/cart")}
-                  className="lucide justify-self-center mb-2 lg:justify-self-end lucide-baggage-claim-icon lucide-baggage-claim"
-                >
-                  <path d="M22 18H6a2 2 0 0 1-2-2V7a2 2 0 0 0-2-2" />
-                  <path d="M17 14V4a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v10" />
-                  <rect width="13" height="8" x="8" y="6" rx="1" />
-                  <circle cx="18" cy="20" r="2" /><circle cx="9" cy="20" r="2" />
-                </svg>
-              </span>
-
-              {/* Notification bubble */}
-              {cart && cart.length > 0 && (
-
-                <span className="absolute lg:-top-1 lg:-right-3 -top-2 right-16   bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
-                  {cart.length}
-
-                </span>
-
-              )}
-            </div>
-
-
-
-            <div className="relative mb-2 bg-gray-500  rounded lg:mb-0 inline-block">
-
-
-              <ChangeLanguage className=""></ChangeLanguage>
-            </div>
-
-            <div>
-              {user ? (
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 ml-4 text-white px-6 py-2 rounded hover:bg-red-700"
-                >
-                  Logout
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate("/auth", { state: { role: "user" } })}
-                  className="bg-indigo-600 ml-4 text-white px-6 py-2 rounded hover:bg-indigo-700"
-                >
-                  Login
-                </button>
-              )}
-            </div>
-
-          </div>
-        )}
         {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}
 
-        {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
           <Link
             to={`/add`}
             className="mt-4 md:mt-0 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition"
           >
             {t("addProduct")}
           </Link>
-        )}
       </div>
+        )}
       {/* Search and Filter Section */}
 
 
