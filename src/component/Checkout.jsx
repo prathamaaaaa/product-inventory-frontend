@@ -4,17 +4,25 @@ import Swal from "sweetalert2";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import { Stepper, Step, StepLabel ,StepIcon } from '@mui/material';
+// import { yellow } from "@mui/material/colors";
 
 export default function Checkout() {
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
   const total = location.state?.total || 0;
-  const code = location.state?.couponCode ;
-console.log("Code :", code);
+  const code = location.state?.couponCode;
+  console.log("Code :", code);
   const singleProduct = location.state?.selectedItems || null;
+  const [step, setStep] = useState(1);
+  const stepLabels = [
+    "Shipping Address",
+    "Shipping Method",
+    "Payment",
+    "Order Details"
+  ];
 
   // console.log("Single Product :", singleProduct.productid);
   const { t, i18n } = useTranslation();
@@ -32,7 +40,6 @@ console.log("Code :", code);
 
 
   const [message, setMessage] = useState("");
-  // const paymentId = "pay_QG4m2r50MkMGVc";
   const handleRefund = async () => {
     try {
       const res = await axios.post("http://localhost:8081/api/checkout/refund", {
@@ -40,7 +47,7 @@ console.log("Code :", code);
       });
       console.log(res.data);
       setMessage("Refund successful!");
-      setRefundDone(true); // disable button
+      setRefundDone(true);
       Swal.fire({
         icon: "success",
         title: "Refund Successful!",
@@ -65,10 +72,10 @@ console.log("Code :", code);
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  const amount= Math.round(Number(total) ) // => 4845 (valid for Razorpay)
+  const amount = Math.round(Number(total)) // => 4845 (valid for Razorpay)
   console.log("Cart :", cart);
 
-  let currentOrderId ='';
+  let currentOrderId = '';
 
   const handleRazorpayPayment = async () => {
     if (!cart.length && !singleProduct?.length) {
@@ -128,15 +135,13 @@ console.log("Code :", code);
               couponcode: code,
               cartItems: JSON.stringify(itemsToSend),
             };
+
             console.log("Payment Payload:", paymentPayload);
             await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
-            // const result = await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
 
-// Assuming result.data.orderId is returned
- currentOrderId = response.razorpay_order_id;
-console.log("Current Order ID:", currentOrderId);
-// ✅ Save to localStorage
-localStorage.setItem("currentOrderId", currentOrderId);
+            currentOrderId = response.razorpay_order_id;
+            console.log("Current Order ID:", currentOrderId);
+            localStorage.setItem("currentOrderId", currentOrderId);
 
 
             Swal.fire({
@@ -177,15 +182,6 @@ localStorage.setItem("currentOrderId", currentOrderId);
     }
   };
 
-  // const validateStep1 = () => {
-  //   const newErrors = {};
-  //   const requiredFields = ["firstName", "lastName", "address1", "mobile", "zip", "city", "state"];
-  //   requiredFields.forEach(field => {
-  //     if (!formData[field]) newErrors[field] = "This field is required.";
-  //   });
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
 
   const validateStep1 = () => {
     const newErrors = {};
@@ -196,11 +192,11 @@ localStorage.setItem("currentOrderId", currentOrderId);
     if (!formData.zip) newErrors.zip = "ZIP code is required";
     if (!formData.city) newErrors.city = "City is required";
     if (!formData.state) newErrors.state = "State is required";
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   const Submit = async () => {
     console.log("Form submitted:", formData);
     // e.preventDefault();
@@ -234,34 +230,53 @@ localStorage.setItem("currentOrderId", currentOrderId);
 
   return (
     <>
-      <div>
+      <div className="bg-[#FFF8F3]">
         <button
           onClick={() => navigate("/cart")}
           className="text-primary ml-[5%] m-12 hover:underline"
         >
           {t("backToList")}
         </button>
-        <div className="max-w-4xl mx-auto p-6 bg-gray-100 min-h-screen">
+        <div className="md:w-[80%] w-[95%] p-4 md:p-20 mx-auto  bg-[#EEE7DA] rounded-lg min-h-screen">
 
-          <h1 className="text-3xl font-bold mb-4">{t("checkout")}</h1>
+          <h1 className="text-3xl  font-bold mb-4">{t("checkout")}</h1>
           <p className="text-right text-lg font-semibold mb-6">
             {t("orderSubtotal")} {total}
           </p>
 
-          <div className="flex flex-col md:flex-row">
-            <div className="flex md:flex-col items-center md:mr-6 mb-4 md:mb-0">
-              {[1, 2, 3, 4].map((num) => (
+          <div className="flex flex-col   md:flex-col  ">
+          <div className="flex flex-col  md:flex-col">
+          <div className="mb-8">
+  <Stepper activeStep={step - 1} alternativeLabel>
+    {stepLabels.map((label, index) => (
+      <Step key={label} completed={index < step - 1}>
+        <StepLabel
+          onClick={() => {
+            if (index <= step - 1) {
+              setStep(index + 1); // Allow only current or previous steps
+            }
+          }}
+          style={{
+            cursor: index <= step - 1 ? "pointer" : "not-allowed",
+            color: "green",
+          }}
+        >
+          <StepIcon
+            style={{
+              backgroundColor: index === step - 1 ? "yellow" : index < step - 1 ? "green" : "gray",
+              color: "white",
+              borderRadius: "50%",
+            }}
+          />
+          {label}
+        </StepLabel>
+      </Step>
+    ))}
+  </Stepper>
+</div>
 
-                <div
-                  key={num}
-                  className={`w-8 h-8 flex items-center justify-center rounded-full mr-2 cursor-pointer mb-4 ${step === num ? 'bg-black text-white' : 'bg-gray-300'}`}
-                  onClick={() => setStep(num)}
-                >
-                  {num}
-                </div>
+    </div>
 
-              ))}
-            </div>
 
             <div className="mt-4 bg-white p-6 rounded-lg shadow-md w-full">
 
@@ -319,37 +334,37 @@ localStorage.setItem("currentOrderId", currentOrderId);
                       </label>
                     </div>
                     <button
-  type="button"
-  onClick={async () => {
-    const isValid = validateStep1();
-    if (!isValid) return;
+                      type="button"
+                      onClick={async () => {
+                        const isValid = validateStep1();
+                        if (!isValid) return;
 
-    console.log("Form Data:", formData);
+                        console.log("Form Data:", formData);
 
-    const isSubmitted = await Submit();
+                        const isSubmitted = await Submit();
 
-    if (isSubmitted) {
-      Swal.fire({
-        title: "Success!",
-        text: "Form submitted successfully.",
-        icon: "success",
-        confirmButtonText: "OK"
-      }).then(() => {
-        setStep(2); 
-      });
-    } else {
-      Swal.fire({
-        title: "Error",
-        text: "Failed to submit form. Please try again.",
-        icon: "error",
-        confirmButtonText: "Retry"
-      });
-    }
-  }}
-  className="bg-black text-white py-2 px-4 rounded w-full md:w-auto"
->
-  {t("continueToShipping")}
-</button>
+                        if (isSubmitted) {
+                          Swal.fire({
+                            title: "Success!",
+                            text: "Form submitted successfully.",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                          }).then(() => {
+                            setStep(2);
+                          });
+                        } else {
+                          Swal.fire({
+                            title: "Error",
+                            text: "Failed to submit form. Please try again.",
+                            icon: "error",
+                            confirmButtonText: "Retry"
+                          });
+                        }
+                      }}
+                      className="bg-black text-white py-2 px-4 rounded w-full md:w-auto"
+                    >
+                      {t("continueToShipping")}
+                    </button>
 
                   </form>
                 )}
@@ -474,9 +489,9 @@ localStorage.setItem("currentOrderId", currentOrderId);
                       type="submit"
                       className="bg-black hover:bg-gray-800 text-white py-2 px-6 rounded shadow-md transition"
                       onClick={() => navigate("/orders", { state: { currentOrderId } })}
-                      >
-Check your order                  
-  </button>
+                    >
+                      Check your order
+                    </button>
                   </div>
 
                 )}

@@ -23,7 +23,7 @@ export default function Orders() {
   const currentOrderId =
     location.state?.currentOrderId || localStorage.getItem("currentOrderId");
   const user = JSON.parse(localStorage.getItem("user"));
-
+  
   const [recentOrders, setRecentOrders] = useState([]);
 
 // let pastOL= 0;
@@ -119,13 +119,13 @@ export default function Orders() {
     };
   return (
     <>
-      <div>
-        <div className=" lg:w-[80%] w-[100%] mx-auto p-6 bg-gray-100 min-h-screen font-sans">
+      <div className="bg-[#FFF8F3]">
+        <div className=" lg:w-[80%] w-[100%] mx-auto p-6  min-h-screen font-sans">
 
-          <h2 className="text-3xl font-semibold mb-6 justify-self-center text-gray-800">{t("otitle")}</h2>
+          <h2 className="text-3xl font-semibold mb-6 justify-self-center text-[#3D0301]">{t("otitle")}</h2>
  
           {recentOrders.length > 0 && (
-  <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-8">
+  <div className="bg-[#F2EFE5] rounded-lg shadow p-4 sm:p-6 mb-8">
     {/* Order Summary Header */}
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
       <div>
@@ -136,7 +136,7 @@ export default function Orders() {
         {t("orderNumber")}{recentOrders[0].orderid}
         </p>
       </div>
-      <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm mt-4 sm:mt-0">
+      <button className="bg-[#D17D98] text-black hover:bg-[#7D1C4A] hover:text-white px-4 py-2 rounded-full text-sm mt-4 sm:mt-0">
       {t("trackOrder")}
       </button>
     </div>
@@ -193,7 +193,7 @@ export default function Orders() {
 
             {/* Delivery Info */}
             <div className="md:text-bottom flex  md:items-end  mr-4 items-end justify-between flex-col  md:col-span-1">
-            <div className=" bg-gray-300 md:px-4 md:py-2 px-2 py-2 font-semibold rounded">
+            <div className=" bg-[#B03052] text-white hover:bg-[#7D1C4A] md:px-4 md:py-2 px-2 py-2 font-semibold rounded">
               <button  onClick={() => cancelOrder( order.orderid,order.productid )}>{t("cancelOrder")}</button>
             </div>
               <div className="text-right mt-4 md:mt-0">
@@ -219,8 +219,8 @@ export default function Orders() {
 )}
 <div className="md:flex  md:justify-between">
   
-<h3 className=" font-semibold text-gray-700 justify-self-center text-2xl md:text-4xl mb-4">📦 Past Orders</h3>
-          <h3 className="text-2xl justify-self-center">{t("pastOrders")}: {pastOrderslength}</h3>
+<h3 className=" font-semibold text-[#3D0301]justify-self-center text-2xl md:text-4xl mb-4">{t("pastOrders")}</h3>
+          <h3 className="text-2xl justify-self-center">{t("total")}: {pastOrderslength}</h3>
 </div>
           {pastOrders.length > 0 ? (
 

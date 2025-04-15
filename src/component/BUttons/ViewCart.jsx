@@ -31,7 +31,7 @@ function ViewCart() {
               {/* Notification bubble */}
               {cart && cart.length > 0 && (
 
-                <span className="absolute lg:-top-1 lg:-right-3 -top-2 right-16   bg-red-500 text-[#EBE8DB] text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
+                <span className="absolute lg:-top-1 lg:-right-3 -top-2 left-4   bg-[#56021F] text-[#EBE8DB] text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
                   {cart.length}
 
                 </span>

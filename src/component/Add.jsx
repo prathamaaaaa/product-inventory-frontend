@@ -8,8 +8,8 @@ function Add() {
 
 
   const navigate = useNavigate();
-    const { t } = useTranslation();
-  
+  const { t } = useTranslation();
+
   const [type, setType] = useState("category");
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -219,8 +219,9 @@ function Add() {
       axios.post(`${BASE_URL}/api/products/save-category`, payload, {
         headers: { "Content-Type": "application/json" }
       })
-        .then(() => navigate("/admin/store"))
-        .catch(error => console.error("Error saving category:", error));
+      alert("Category saved successfully!");
+      window.location.reload()
+              .catch(error => console.error("Error saving category:", error));
     }
 
     else if (type === "subcategory") {
@@ -241,7 +242,8 @@ function Add() {
       axios.post(`${BASE_URL}/api/products/save-subcategory`, payload, {
         headers: { "Content-Type": "application/json" }
       })
-        .then(() => navigate("/admin/store"))
+      alert("Subcategory saved successfully!");
+      window.location.reload()        
         .catch(error => console.error("Error saving subcategory:", error));
     }
 
@@ -308,7 +310,8 @@ function Add() {
         })
           .then(() => {
             alert("Product Saved Successfully!");
-            navigate("/admin/store");
+        
+            window.location.reload();
           })
           .catch(error => {
             console.error("Error saving product:", error);
@@ -341,22 +344,22 @@ function Add() {
   };
 
   return (
-    <div className=" min-h-screen p-8 text-dark">
-      <h1 className="text-4xl font-bold mb-6 text-center">{t("productManagement")}</h1>
+    <div className=" min-h-screen bg-[#FFF8F3] p-8 text-dark">
+      <h1 className="text-4xl text-[#3D0301] font-bold mb-6 text-center">{t("productManagement")}</h1>
       <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
-      {t("backToList")}
-            </button>
+        {t("backToList")}
+      </button>
 
-      <form onSubmit={handleSubmit} className="bg-gray-100 rounded-2xl justify-self-center w-[70%] shadow-lg p-6 mt-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-[#FDFAF6] rounded-2xl justify-self-center w-[70%] shadow-2xl p-6 mt-6 space-y-6">
 
         <div className="flex items-center">
           <label className="block w-60 text-lg">{t("selectStorePlaceholder")}</label>
-          <select value={selectedStore} onChange={handleStoreChange} className="w-full bg-gray-200 p-3 border rounded-lg">
+          <select value={selectedStore} onChange={handleStoreChange} className="w-full bg-[#f8f4ee] p-3 border rounded-lg">
             <option value="">{t("selectStorePlaceholder")}</option>
-            {stores.map(store => <option key={store.id} 
-            value={store.id}>
-          {JSON.parse(store.name)[language] || JSON.parse(store.name)["en"]}
-          </option>)}
+            {stores.map(store => <option key={store.id}
+              value={store.id}>
+              {JSON.parse(store.name)[language] || JSON.parse(store.name)["en"]}
+            </option>)}
           </select>
         </div>
 
@@ -367,10 +370,10 @@ function Add() {
           <select
 
             value={type}
-            onChange={(e) => setType(e.target.value)} className="w-full bg-gray-200 p-3 border rounded-lg">
+            onChange={(e) => setType(e.target.value)} className="w-full bg-[#f8f4ee] p-3 border rounded-lg">
             <option value="category">{t("category")}</option>
             <option value="subcategory">{t("subcategory")}</option>
-            <option value="product">{t("product")}</option>
+            <option value="product">📁 {t("product")}</option>
           </select>
         </div>
 
@@ -381,7 +384,7 @@ function Add() {
               <div className="flex items-center">
                 <label className="block w-60  text-lg">{t("enterCategory")}</label>
                 <input key={index} type="text" value={category} onChange={e => handleCategoryInputChange(index, e.target.value)}
-                  className="w-full p-3 border  rounded-lg m-2" placeholder={t("enterCategory")}   />
+                  className="w-full p-3 border  rounded-lg m-2" placeholder={t("enterCategory")} />
                 {categoryInputs.length > 1 && (
                   <button
                     type="button"
@@ -393,8 +396,8 @@ function Add() {
                 )}
               </div>
             ))}
-            <button type="button" onClick={addMoreCategory} className="bg-purple-700  hover:bg-purple-950 my-4 text-white px-4 py-2 rounded-lg">
-            {t("addMoreCategories")}
+            <button type="button" onClick={addMoreCategory} className="bg-[#56021F] hover:bg-[#7D1C4A] my-4 text-white px-4 py-2 rounded-lg">
+              {t("addMoreCategories")}
             </button>
           </div>
         )}
@@ -405,7 +408,7 @@ function Add() {
             <div className="flex  items-center">
               <label className="block w-60  text-lg">{t("selectCategory")}</label>
               <select value={selectedCategory} onChange={handleCategoryChange}
-                className="w-full bg-gray-200 mb-4 p-3 border rounded-lg">
+                className="w-full bg-[#f8f4ee] mb-4 p-3 border rounded-lg">
 
                 <option value="">{t("selectCategory")}</option>
                 {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
@@ -431,8 +434,8 @@ function Add() {
 
             ))}
 
-            <button type="button" onClick={addMoreSubcategory} className="bg-purple-700 hover:bg-purple-950 my-4 text-white px-4 py-2 rounded-lg">
-            {t("addMoreSubcategories")}            </button>
+            <button type="button" onClick={addMoreSubcategory} className="bg-[#56021F] hover:bg-[#7D1C4A]  my-4 text-white px-4 py-2 rounded-lg">
+              {t("addMoreSubcategories")}            </button>
             {/* <span>{storeId}</span> */}
           </div>
         )}
@@ -445,7 +448,7 @@ function Add() {
               <select
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                className="w-full p-3 bg-gray-200 border rounded-lg"
+                className="w-full p-3 bg-[#f8f4ee] border rounded-lg"
               >
                 <option value="">{t("selectCategory")}</option>
                 {categories.map((cat) => (
@@ -463,7 +466,7 @@ function Add() {
               <select
                 value={selectedSubcategory}
                 onChange={(e) => setSelectedSubcategory(e.target.value)}
-                className="w-full bg-gray-200 p-3 border rounded-lg"
+                className="w-full bg-[#f8f4ee] p-3 border rounded-lg"
               >
                 <option value="">{t("selectSubcategory")}</option>
                 {filteredSubCategories.map((sub) => (
@@ -482,28 +485,30 @@ function Add() {
                   {/* <label className="block w-70 text-lg">Enter Product Name :</label>
                   <input type="text" value={product.name} onChange={e => handleProductInputChange(index, "name", e.target.value)}
                     className="w-full p-3 border rounded-lg mb-2" placeholder="Enter Product Name" /> */}
-                  <div className="flex m-2 items-center">
+             <div className="flex-col w-full">
+             <div className="flex  items-center">
                     <label className="block w-70 text-lg">{t("enterProductNameEn")}</label>
                     <input type="text"
-  value={typeof product.name === "string" ? JSON.parse(product.name).en || "" : product.name.en || ""}
-                        onChange={e => handleProductInputChange(index, "name", e.target.value, "en")}
+                      value={typeof product.name === "string" ? JSON.parse(product.name).en || "" : product.name.en || ""}
+                      onChange={e => handleProductInputChange(index, "name", e.target.value, "en")}
                       className="w-full p-3 border rounded-lg mb-2" placeholder={t("enterProductNameEnPlaceholder")} />
                   </div>
 
-                  <div className="flex m-2 items-center">
+                  <div className="flex  items-center">
                     <label className="block w-70 text-lg">{t("enterProductNameGuj")}</label>
-                    <input type="text" 
-  value={typeof product.name === "string" ? JSON.parse(product.name).guj || "" : product.name.guj || ""}
+                    <input type="text"
+                      value={typeof product.name === "string" ? JSON.parse(product.name).guj || "" : product.name.guj || ""}
                       onChange={e => handleProductInputChange(index, "name", e.target.value, "guj")}
                       className="w-full p-3 border rounded-lg mb-2" placeholder={t("enterProductNameGujPlaceholder")} />
                   </div>
 
-                  <div className="flex m-2 items-center">
+                  <div className="flex items-center">
                     <label className="block w-70 text-lg">{t("enterProductNameHi")}</label>
-                    <input type="text" 
-  value={typeof product.name === "string" ? JSON.parse(product.name).hi || "" : product.name.hi || ""}                    onChange={e => handleProductInputChange(index, "name", e.target.value, "hi")}
+                    <input type="text"
+                      value={typeof product.name === "string" ? JSON.parse(product.name).hi || "" : product.name.hi || ""} onChange={e => handleProductInputChange(index, "name", e.target.value, "hi")}
                       className="w-full p-3 border rounded-lg mb-2" placeholder={t("enterProductNameHiPlaceholder")} />
                   </div>
+             </div>
 
                 </div>
                 <div className="flex m-2 items-center">
@@ -527,8 +532,8 @@ function Add() {
 
                 ))}
 
-                <button type="button" onClick={() => addMoreImageUrl(index)} className="bg-purple-800 hover:bg-purple-900 text-white px-4 my-4 py-2 rounded-lg">
-                {t("addMoreImageUrls")}                </button>
+                <button type="button" onClick={() => addMoreImageUrl(index)} className="bg-[#56021F] hover:bg-[#7D1C4A] text-white px-4 my-4 py-2 rounded-lg">
+                  {t("addMoreImageUrls")}                </button>
                 {productInputs.length > 1 && (
                   <button
                     type="button"
@@ -541,14 +546,14 @@ function Add() {
               </div>
 
             ))}
-            <button type="button" onClick={addMoreProduct} className="bg-purple-800 hover:bg-purple-900 text-white px-4 py-2 rounded-lg">
-            {t("addMoreProducts")}    
+            <button type="button" onClick={addMoreProduct} className="bg-[#56021F] hover:bg-[#7D1C4A] text-white px-4 py-2 rounded-lg">
+              {t("addMoreProducts")}
             </button>
 
           </div>
         )}
 
-        <button type="submit" className="w-full bg-primary text-white p-3 bg-purple-950 hover:bg-purple-800 rounded-lg">{t("submit")}</button>
+        <button type="submit" className="w-full bg-primary text-white p-3 bg-[#56021F] hover:bg-[#7D1C4A] rounded-lg">{t("submit")}</button>
       </form>
     </div>
   );

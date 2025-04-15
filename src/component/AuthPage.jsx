@@ -86,10 +86,30 @@ function AuthPage() {
         alert("Google Login Successful!");
         localStorage.setItem("admin", JSON.stringify(res.data));
         axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-        navigate("/admin/dashboard");
+        console.log(res.data.role)
+
+
       } else {
         alert("Google Login Failed!");
       }
+      
+        
+        axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+        const userRole = res.data.role;
+        console.log("User Roleeee:", userRole);
+        console.log("Userssss Role:",res.data.role);
+        
+        
+        if (userRole === "Admin") {
+          localStorage.setItem("admin", JSON.stringify(res.data));
+          navigate("/admin/dashboard");
+      } else if (userRole === "user") {
+        localStorage.setItem("user", JSON.stringify(res.data));
+          navigate("/list");
+      } else {
+          alert("Unknown role! Redirecting to home.");
+      }
+       
     } catch (error) {
       console.error("Google Login Error:", error.response?.data || error.message);
     }
@@ -105,11 +125,7 @@ function AuthPage() {
         >
           {/* Left Section */}
           <div className="w-1/2 bg-gradient-to-r md:block hidden from-[#6A11CB] to-[#2575FC] lg:flex lg:flex-col lg:justify-center lg:items-center p-8">
-          {/* <Lottie
-                        options={defaultOptions}
-                        height={600}
-                        width={600}
-                    /> */}
+    
             <h2 className="text-3xl font-bold text-white">Romanchat</h2>
             <p className="text-white text-sm mt-2 text-center">
               Welcome to the future of communication.

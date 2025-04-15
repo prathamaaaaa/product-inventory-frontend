@@ -151,14 +151,14 @@ function AdminPanel() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex  bg-[#FFF8F3]">
       <div>
 
       </div>
       {/* Sidebar - Responsive & Scrollable */}
       <motion.div
         animate={{ width: isSidebarOpen ? "16rem" : "0" }}
-        className={`bg-[#1E3A8A] text-white flex flex-col fixed h-screen overflow-y-auto z-50 transition-all duration-300 ${isSidebarOpen ? "left-0" : "-left-64"
+        className={`bg-[#B03052] text-white flex flex-col fixed h-screen overflow-y-auto z-50 transition-all duration-300 ${isSidebarOpen ? "left-0" : "-left-64"
           }`}
       >
         {/* Sidebar Header */}
@@ -178,7 +178,7 @@ function AdminPanel() {
             to="/admin/dashboard"
             className={({ isActive }) =>
               `p-4 flex items-center space-x-3 cursor-pointer 
-       ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+       ${isActive ? "bg-[#EBE8DB] text-black" : "text-white hover:text-black hover:bg-[#EBE8DB] "}`
             }
           >
             <FaProjectDiagram /> <span>{t("dashboard")}</span>
@@ -188,7 +188,7 @@ function AdminPanel() {
   to="/admin/store"
   className={({ isActive }) =>
     `p-4 flex items-center space-x-3 cursor-pointer 
-     ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+       ${isActive ? "bg-[#EBE8DB] text-black" : "text-white hover:text-black hover:bg-[#EBE8DB] "}`
   }
 >
 
@@ -199,13 +199,13 @@ function AdminPanel() {
   to="/admin/coupons"
   className={({ isActive }) =>
     `p-4 flex items-center space-x-3 cursor-pointer 
-     ${isActive ? "bg-[#334155] text-white" : "text-gray-300 hover:bg-[#334155]"}`
+       ${isActive ? "bg-[#EBE8DB] text-black" : "text-white hover:text-black hover:bg-[#EBE8DB] "}`
   }
 >
   <FaPlus /> <span>Add Coupons</span>
 </NavLink>
 
-          <div className="relative inline-block text-white rounded-md hover:bg-[#334155] hover:text-white">
+          <div className="relative inline-block text-white rounded-md hover:bg-[#B03052] hover:text-white">
             {/* Icon button to toggle dropdown */}
             {/* <button
               onClick={() => setIsOpen(!isOpen)}
@@ -225,12 +225,12 @@ function AdminPanel() {
 
 
         <div className="p-4 border-t border-gray-600">
-          <button onClick={handleDeleteAdmin} className="text-red-600 hover:underline">
+          <button onClick={handleDeleteAdmin} className="text-white hover:underline">
             {t("deleteAccount")}
           </button>
         </div>
         <div className="p-4 border-t border-gray-600">
-          <button onClick={handleLogout} className="text-red-600 hover:underline">
+          <button onClick={handleLogout} className="text-white hover:underline">
             {t("logout")}
           </button>
         </div>
@@ -240,7 +240,7 @@ function AdminPanel() {
       {/* Main Content */}
       <div className={`flex flex-col flex-grow transition-all duration-300 ${isSidebarOpen ? "lg:ml-[16rem]" : ""}`}>
         {/* Header with Sidebar Toggle Button */}
-        <div className="bg-white p-5 shadow flex justify-between items-center">
+        <div className="bg-[#FDFAF6] p-5 shadow flex justify-between items-center">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="lg:hidden text-gray-700 focus:outline-none"
@@ -250,7 +250,7 @@ function AdminPanel() {
 
           <h2 className="text-xl font-bold">{t("adminDashboard")}</h2>
         
-          <div className="flex items-center space-x-4">
+          <div  className="flex  items-center space-x-4">
             <span className="text-gray-700 font-medium">{admin?.name || "Loading..."}</span>
 
           </div>
@@ -258,9 +258,9 @@ function AdminPanel() {
 
         {/* Dashboard Cards */}
         <div className="flex justify-center">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+          <div className="grid md:grid-cols-2 w-[80%] lg:w-[70%] lg:grid-cols-3 gap-4 lg:gap-6 p-6">
             <motion.div
-              className="bg-white p-6 justify-center shadow rounded-xl lg:w-[300px] lg:h-[250px] flex flex-col items-center"
+              className="bg-[#FDFAF6] p-6 justify-center shadow rounded-xl flex flex-col items-center"
               whileHover={{ scale: 1.05 }}
             >
               <FaProjectDiagram className="text-6xl text-blue-500" />
@@ -269,7 +269,7 @@ function AdminPanel() {
             </motion.div>
 
             <motion.div
-              className="bg-white p-6 justify-center shadow rounded-xl flex flex-col items-center"
+              className="bg-[#FDFAF6] p-6 justify-center shadow rounded-xl flex flex-col items-center"
               whileHover={{ scale: 1.05 }}
             >
               <FaTasks className="text-6xl text-green-500" />
@@ -278,7 +278,7 @@ function AdminPanel() {
             </motion.div>
 
             <motion.div
-              className="bg-white p-6 shadow rounded-xl justify-center flex flex-col items-center"
+              className="bg-[#FDFAF6] p-6 shadow rounded-xl justify-center flex flex-col items-center"
               whileHover={{ scale: 1.05 }}
             >
               <FaUsers className="text-6xl text-yellow-500" />

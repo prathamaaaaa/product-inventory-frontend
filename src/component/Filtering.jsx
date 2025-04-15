@@ -118,7 +118,7 @@ function Filtering({t ,storeId, categories, subCategories,products, isAdminPanel
 
 {/* Reset Button */}
 <button
-  className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+  className=" text-white py-2  px-3 rounded-lg bg-[#56021F] hover:bg-[#7D1C4A] transition"
   onClick={() => {
     setSearchQuery("");
     setSelectedCategory("");

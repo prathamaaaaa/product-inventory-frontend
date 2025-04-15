@@ -69,10 +69,10 @@ function Coupons() {
   }, []);
 
   return (
-    <div className="p-6">
-<div className='flex justify-between items-center mb-4'>
+    <div className="p-6  ">
+<div className='flex justify-between  items-center mb-4'>
 <h2 className="text-2xl font-bold mb-4"> {t("Available Coupons")}</h2>
-<button onClick={()=>{navigate("/addcoupon")}} className='bg-gray-300 p-4 rounded-lg font-bold hover:bg-gray-200'>{t("Add Coupons")}</button>
+<button onClick={()=>{navigate("/addcoupon")}} className='bg-[#B03052] p-4 rounded-lg text-white font-bold hover:bg-[#B03052]'>{t("Add Coupons")}</button>
     </div> 
          {coupons.length === 0 ? (
         <p>{t('noActiveCoupons')}
@@ -80,14 +80,14 @@ function Coupons() {
       ) : (
         <ul className="space-y-4">
           {coupons.map((coupon) => (
-            <li key={coupon.id} className="bg-white shadow p-4 rounded-lg">
+            <li key={coupon.id} className="bg-[#FFF2F2] text-black shadow p-4 rounded-lg">
             <h3 className="text-lg font-semibold">{coupon.name}</h3>
-            <p className="text-gray-600">{t("Code")} : <span className="font-mono">{coupon.code}</span></p>
-            <p className="text-gray-600">{t("Discount")} : ₹{coupon.discount}</p>
-            <p className="text-gray-600">{t("Used")} : {coupon.usercount}/10</p>
+            <p className="">{t("Code")} : <span className="font-mono">{coupon.code}</span></p>
+            <p className="">{t("Discount")} : ₹{coupon.discount}</p>
+            <p className="">{t("Used")} : {coupon.usercount}/10</p>
           
             {coupon.usercount >= 10 ? (
-              <p className="text-red-500 font-semibold">{t('couponExpired')}</p>
+              <p className="text-red-500 font-semibold">{t('couponExpired')}  </p>
             ) : (
               <p className="text-green-600 font-semibold">{t("Available")} </p>
             )}

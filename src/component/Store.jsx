@@ -13,6 +13,7 @@ function Store() {
   const [stores, setStores] = useState([]);
   const [productCounts, setProductCounts] = useState({});
   const [copySuccess, setCopySuccess] = useState(false);
+  const [storeProducts, setStoreProducts] = useState({});
 
   useEffect(() => {
     const storedAdmin = localStorage.getItem("admin");
@@ -31,12 +32,18 @@ function Store() {
           if (Array.isArray(response.data)) {
             setStores(response.data);
 
-            response.data.forEach((store) => {
+             response.data.forEach((store) => {
               axios.get(`${BASE_URL}/api/stores/product/${store.id}`)
                 .then((productResponse) => {
                   setProductCounts((prevCounts) => ({
                     ...prevCounts,
                     [store.id]: productResponse.data.products ? productResponse.data.products.length : 0,
+                  }));
+  
+                  // Step 3: Save products in the state
+                  setStoreProducts((prevProducts) => ({
+                    ...prevProducts,
+                    [store.id]: productResponse.data.products || [],
                   }));
                 })
                 .catch((error) => console.error(`Error fetching product count for Store ${store.id}:`, error));
@@ -88,6 +95,18 @@ function Store() {
           .then(() => {
             Swal.fire("Deleted!", "The store has been deleted.", "success");
             setStores(stores.filter(store => store.id !== storeId)); 
+  
+            const productsToDelete = storeProducts[storeId] || [];
+            const productIdsToDelete = productsToDelete.map((product) => product.id);
+  
+            const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+  
+            const updatedCart = cartItems.filter(
+              (item) => !productIdsToDelete.includes(item.productid)
+            );
+            console.log(updatedCart)
+  
+            localStorage.setItem("cart", JSON.stringify(updatedCart));
           })
           .catch(error => {
             console.error("Error deleting store:", error);
@@ -96,23 +115,24 @@ function Store() {
       }
     });
   };
+  
 
   return (
-    <div className="min-h-screen p-8 bg-gray-100">
-      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">{t("title")}</h1>
+    <div className="min-h-screen bg-[#FFF8F3] p-8 ">
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">{t("titles")}</h1>
 
       <div className="flex justify-center space-x-4">
-        <Link to="/add" className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition">
+        <Link to="/add" className="px-6 py-3 bg-[#B03052] text-white font-semibold rounded-lg shadow-md hover:bg-[#B03052] transition">
          {t("addProduct")}
         </Link>
-        <Link to="/createstore" className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition">
+        <Link to="/createstore" className="px-6 py-3 bg-[#B03052] text-white font-semibold rounded-lg shadow-md hover:bg-[#B03052] transition">
 {t("createStore")}        </Link>
       </div>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stores.length > 0 ? (
           stores.map((store) => (
-            <div key={store.id} className="relative p-6 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer">
+            <div key={store.id} className="relative p-6 bg-[#FFF2F2] shadow-md rounded-lg hover:shadow-lg transition cursor-pointer">
               <Link to={`/store/${store.id}`}>
                 <h2 className="text-xl font-semibold text-gray-800">
                 {JSON.parse(store.name)[language] || JSON.parse(store.name)["en"]}
@@ -145,12 +165,7 @@ function Store() {
               </button>
 
             <div className="p-4 rounded-lg mt-4">
-            {/* <button
-                onClick={() => handleDownloadCSV(store.id)}
-                className="mt-4 bg-gray-300  px-4 py-2 rounded-lg hover:bg-gray-400 w-full"
-              >
-            {t("downloadCSV")}
-              </button> */}
+       
 <DownloadCSVButton storeId={store.id} BASE_URL={BASE_URL} />
 
               {/* 🗑 Delete Store Button */}

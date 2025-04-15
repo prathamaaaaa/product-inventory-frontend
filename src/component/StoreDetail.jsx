@@ -112,13 +112,13 @@ function StoreDetail() {
   if (!store) return <p className="text-center text-lg">Loading store details...</p>;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-[#FFF8F3] p-6">
       <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
 {t("backToList")}      </button>
 
 
 
-      <div className="bg-white flex justify-between mb-10 p-6 rounded-lg shadow-lg text-center mt-4">
+      <div className="bg-[#FDFAF6] flex justify-between mb-10 p-6 rounded-lg shadow-lg text-center mt-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
           {JSON.parse(store.name)[language] || JSON.parse(store.name)["en"]}

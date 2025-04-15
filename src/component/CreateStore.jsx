@@ -50,15 +50,15 @@ function CreateStore() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-[#FFF8F3]">
       <div className="flex self-start mb-14 ml-[20%]">
         <button onClick={() => navigate("/admin/store")} className="text-primary hover:underline">
           {t("backToList")}
         </button>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md w-full sm:w-[60%] lg:w-[35%]">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+      <div className="bg-white sm:p-16 p-6 rounded-lg shadow-md w-full sm:w-[60%] lg:w-[50%]">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">
           {t("createStore")}
         </h2>
 
@@ -72,41 +72,41 @@ function CreateStore() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium">{t("storeName")} (English)</label>
+            <label className="block text-gray-700 mb-2 font-medium">{t("storeName")} (English)</label>
             <input
               type="text"
               placeholder="Enter store name in English"
               value={storeName.en}
               onChange={(e) => handleChange("en", e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B03052]"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium">{t("storeName")} (Gujarati)</label>
+            <label className="block mb-2 text-gray-700 font-medium">{t("storeName")} (Gujarati)</label>
             <input
               type="text"
               placeholder="Enter store name in Gujarati"
               value={storeName.guj}
               onChange={(e) => handleChange("guj", e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B03052]"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium">{t("storeName")} (Hindi)</label>
+            <label className="block text-gray-700 mb-2 font-medium">{t("storeName")} (Hindi)</label>
             <input
               type="text"
               placeholder="Enter store name in Hindi"
               value={storeName.hi}
               onChange={(e) => handleChange("hi", e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B03052]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg shadow-md hover:bg-blue-700 transition"
+            className="w-full bg-[#B03052] text-white py-2 rounded-lg shadow-md hover:bg-[#b03052e8] transition"
           >
             {t("create")}
           </button>

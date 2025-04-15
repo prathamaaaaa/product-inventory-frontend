@@ -93,13 +93,19 @@ function List({ storeId }) {
 
   const syncCartWithDatabase = async (userId) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (!cart.userid) {
+      console.log("yess")
+      
+    }
     console.log("uuuuuu", userId)
 
     if (cart.length === 0) {
       console.log("No items in local storage cart to sync.");
       return;
     }
-
+    
+  //  if (!cart.userid) {
     const cartData = {
       userid: Number(user.id),
       cartItems: cart.map(item => ({
@@ -108,10 +114,13 @@ function List({ storeId }) {
         quantity: Number(item.quantity)
       }))
     };
+  //  }
 
     console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
 
     try {
+
+
       const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
         method: "POST",
         headers: {
@@ -253,12 +262,12 @@ function List({ storeId }) {
 
   return (
 
-    <div className="bg-[#FBFBFB] text-gray-900 min-h-screen p-8">
+    <div className="bg-[#FFF8F3] text-gray-900 min-h-screen p-8">
       <PreventBackOnList />
 
       {/* header sections  */}
         {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
-      <div className="bg-white p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
+      <div className="bg-[#FDFAF6] p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
 
 
@@ -266,7 +275,7 @@ function List({ storeId }) {
 
           <Link
             to={`/add`}
-            className="mt-4 md:mt-0 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition"
+            className="mt-4 md:mt-0 px-6 py-3  text-white font-semibold rounded-lg shadow-md bg-[#56021F] hover:bg-[#7D1C4A] transition"
           >
             {t("addProduct")}
           </Link>
@@ -290,7 +299,7 @@ function List({ storeId }) {
 
             .map(product => (
 
-              <div key={product.id} className="bg-white p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
+              <div key={product.id} className="bg-[#FFF2F2] p-5 rounded-xl shadow-lg transform transition hover:translate-y-[-5px] hover:shadow-2xl">
                 {/* <span>{product.adminid}</span>
                 <span>admin{admin?.id}</span> */}
 
@@ -377,7 +386,7 @@ function List({ storeId }) {
                 </h2>
 
                 {/* Product Details */}
-                <div className="text-sm text-gray-600 mt-3 space-y-2">
+                <div className="text-sm text-gray-600 mt-3 mb-2 space-y-2">
                   <p><strong>{t("price")}</strong> {product.price}</p>
                   <p><strong>{t("category")}</strong> {product.categoryName || "N/A"}</p>
                   <p><strong>{t("subcategory")}</strong> {product.subCategoryName || "N/A"}</p>
@@ -386,7 +395,7 @@ function List({ storeId }) {
                 {/* View Details Button */}
                 <Link
                   to={isAdminPanel ? `/admin/detail/${product.id}` : `/detail/${product.id}`}
-                  className="text-indigo-500 font-semibold hover:underline"
+                  className="text-[#3D0301]  font-semibold hover:underline"
                 >
                   {t("viewDetails")}
                 </Link>
@@ -415,12 +424,14 @@ function List({ storeId }) {
         )}
       </div>
 
-      <button onClick={CopyUrl} className="fixed bottom-6 right-6 bg-indigo-600 text-white text-xl p-4 rounded-full shadow-lg hover:bg-indigo-700 transition transform hover:scale-110">
+      <button onClick={CopyUrl} className="fixed bottom-6 right-6 bg-[#56021F] text-white text-xl p-4 rounded-full shadow-lg hover:bg-[#7D1C4A] transition transform hover:scale-110">
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" strokeWidth={2} viewBox="0 0 26 24" fill="none" stroke="currentColor" className="lucide  lucide-share-2"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /><line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></svg>
       </button>
       {copySuccess && (
         <div className="fixed bottom-16 right-16 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg transition-opacity">
-          {t("copyUrl")}        </div>
+          {t("copyUrl")}        
+          
+          </div>
       )}
 
     </div>

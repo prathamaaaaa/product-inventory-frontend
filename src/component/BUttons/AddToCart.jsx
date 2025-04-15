@@ -22,7 +22,9 @@ function AddToCart({ product, language }) {
           updatedProduct = {
             productid: id,
             productname: productName
-            , quantity: 1, price: price
+            , quantity: 1,
+             price: price,
+             userid: user ? user.id : null
           };
           cart.push(updatedProduct);
         }

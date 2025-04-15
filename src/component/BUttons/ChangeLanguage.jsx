@@ -39,20 +39,20 @@ function ChangeLanguage() {
            <div className="absolute right-0 mt-2 w-32 shadow-lg rounded-lg text-black overflow-hidden border border-gray-200">
                 <button
                   onClick={() => changeLanguage("en")}
-                  className="block w-full text-black px-4 py-2 text-left hover:bg-black hover:text-white"
+                  className="block w-full text-black px-4 py-2 text-left hover:bg-[#B03052]  hover:text-white"
                 >
                   English
                 </button>
                 
                 <button
                   onClick={() => changeLanguage("hi")}
-                  className="block w-full text-black px-4 py-2 text-left hover:bg-black hover:text-white"
+                  className="block w-full text-black px-4 py-2 text-left hover:bg-[#B03052]  hover:text-white"
                 >
                   Hindi
                 </button>
                 <button
                   onClick={() => changeLanguage("guj")}
-                  className="block w-full text-black px-4 py-2 text-left hover:bg-black hover:text-white"
+                  className="block w-full text-black px-4 py-2 text-left hover:bg-[#B03052]  hover:text-white"
                 >
                   Gujarati
                 </button>

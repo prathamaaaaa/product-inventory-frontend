@@ -23,60 +23,60 @@ function Detail() {
 
   const fetchCartDetails = async () => {
     try {
-        let cart = JSON.parse(localStorage.getItem("cart") || "[]"); 
-        let productIds = cart.map((item) => item.productid); // Fix: Use productid
+      let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      let productIds = cart.map((item) => item.productid); // Fix: Use productid
 
-        let response = await axios.get(`${BASE_URL}/api/products/all`);
-        let allProducts = response.data.products;
+      let response = await axios.get(`${BASE_URL}/api/products/all`);
+      let allProducts = response.data.products;
 
-        let updatedCart = allProducts
-            .filter((product) => productIds.includes(product.id)) // Ensure productid matches id
-            .map((product) => {
-                let cartItem = cart.find((item) => item.productid === product.id);
-                return { ...product, quantity: cartItem.quantity };
-            });
+      let updatedCart = allProducts
+        .filter((product) => productIds.includes(product.id)) // Ensure productid matches id
+        .map((product) => {
+          let cartItem = cart.find((item) => item.productid === product.id);
+          return { ...product, quantity: cartItem.quantity };
+        });
 
-        setCartDetails(updatedCart);
+      setCartDetails(updatedCart);
     } catch (error) {
-        console.error("Error fetching cart details:", error);
+      console.error("Error fetching cart details:", error);
     }
-};
+  };
 
-  const updateQuantity = async (id, change  , productname, productsprice) => {
+  const updateQuantity = async (id, change, productname, productsprice) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     let user = JSON.parse(localStorage.getItem("user"));
-  
+
     if (!user) {
       console.log("User not logged in. Cart stored only in local storage.");
       return;
     }
-  
+
     const existingProduct = cart.find((item) => item.productid === id);
-    if (!existingProduct) return; 
-  
+    if (!existingProduct) return;
+
     existingProduct.quantity = Math.max(1, existingProduct.quantity + change);
     localStorage.setItem("cart", JSON.stringify(cart));
-  
+
     try {
       const cartData = {
         userid: user.id ?? 0,
         productid: existingProduct.productid ?? 0,
-        productname: productname|| "Unknown", 
+        productname: productname || "Unknown",
         price: productsprice || 0,
         quantity: existingProduct.quantity ?? 1,
       };
-  
+
       console.log("Sending cart data:", cartData);
-  
-      const response = await fetch("http://localhost:8081/api/products/cart", {  
+
+      const response = await fetch("http://localhost:8081/api/products/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cartData),
       });
-  
+
       if (response.ok) {
         console.log("Cart item quantity updated in database.");
-        fetchCartDetails(); 
+        fetchCartDetails();
       } else {
         const errorText = await response.text();
         console.error("Failed to update cart quantity:", errorText);
@@ -85,7 +85,7 @@ function Detail() {
       console.error("Error updating cart:", error);
     }
   };
-  
+
 
 
   function CopyUrl() {
@@ -127,66 +127,68 @@ function Detail() {
   if (!product) return <p className="text-center text-gray-600">Product not found.</p>;
 
 
- 
+
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
   console.log("Initial Local Storage:", cart);
 
 
-  const AddtoCart = async (id, productName , price) => {
-    fetchCartDetails(); 
+  const AddtoCart = async (id, productName, price) => {
+    fetchCartDetails();
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    let user = JSON.parse(localStorage.getItem("user")); 
+    let user = JSON.parse(localStorage.getItem("user"));
 
     console.log("Initial Local Storage name:", productName);
-    
+
     let updatedProduct = null;
     const existingProductIndex = cart.findIndex((item) => item.productid === id);
 
     if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += 1;
-        updatedProduct = cart[existingProductIndex];
+      cart[existingProductIndex].quantity += 1;
+      updatedProduct = cart[existingProductIndex];
     } else {
-        updatedProduct = { productid: id, 
-          productname: productName
-          , quantity: 1 , price: price };
-        cart.push(updatedProduct);
+      updatedProduct = {
+        productid: id,
+        productname: productName
+        , quantity: 1, price: price
+      };
+      cart.push(updatedProduct);
     }
     console.log("Initial Local Storage name:", productName);
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    fetchCartDetails(); 
+    fetchCartDetails();
     console.log("Updated Local Storage:", JSON.parse(localStorage.getItem("cart")));
 
     if (user && user.id) {
-        try {
-            const cartData = {
-                userid: user.id, 
-                productid: updatedProduct.productid,
-                productname: productName,
-                quantity: updatedProduct.quantity
-            };
+      try {
+        const cartData = {
+          userid: user.id,
+          productid: updatedProduct.productid,
+          productname: productName,
+          quantity: updatedProduct.quantity
+        };
 
-            const response = await fetch("http://localhost:8081/api/products/cart", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(cartData),
-            });
+        const response = await fetch("http://localhost:8081/api/products/cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(cartData),
+        });
 
-            if (response.ok) {
-                console.log("Cart item saved in database successfully.");
-            } else {
-                console.error("Failed to save cart item in database.");
-            }
-        } catch (error) {
-            console.error("Error sending cart item to database:", error);
+        if (response.ok) {
+          console.log("Cart item saved in database successfully.");
+        } else {
+          console.error("Failed to save cart item in database.");
         }
+      } catch (error) {
+        console.error("Error sending cart item to database:", error);
+      }
     } else {
-        console.log("User not logged in. Cart stored only in local storage.");
+      console.log("User not logged in. Cart stored only in local storage.");
     }
-};
+  };
 
 
 
@@ -204,7 +206,7 @@ function Detail() {
             onClick={() => navigate("/admin/dashboard")}
             className="text-primary ml-[5%] hover:underline"
           >
-         {t("backToList")}
+            {t("backToList")}
           </button>
         )}
 
@@ -254,12 +256,12 @@ function Detail() {
 
             {/* Right: Product Info */}
             <div className="mb-10">
-<div className="flex justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">
-{JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
-              </h1> 
-          
-</div>
+              <div className="flex justify-between">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {JSON.parse(product.name)[language] || JSON.parse(product.name)["en"]}
+                </h1>
+
+              </div>
               <p className="text-gray-600 text-sm">{product.categoryName} / {product.subCategoryName}</p>
 
               {/* Rating & Description */}
@@ -275,22 +277,22 @@ function Detail() {
                   URL Copied..!!
                 </div>
               )}
-{/* Quantity Selector */}
-{cart
-  .filter((item) => item.productid === product.id)
-  .map((item) => (
-    <div key={item.productid} className="flex items-center justify-start space-x-3 mt-4">
-      <button 
-        onClick={() => updateQuantity(item.productid, -1 , product.name , product.price)}
-        className="px-3 py-1 border rounded-md hover:bg-gray-200"
-      >-</button>
-      <span className="text-lg">{item.quantity}</span>
-      <button 
-        onClick={() => updateQuantity(item.productid, 1 , product.name , product.price)}
-        className="px-3 py-1 border rounded-md hover:bg-gray-200"
-      >+</button>
-    </div>
-))}
+              {/* Quantity Selector */}
+              {cart
+                .filter((item) => item.productid === product.id)
+                .map((item) => (
+                  <div key={item.productid} className="flex items-center justify-start space-x-3 mt-4">
+                    <button
+                      onClick={() => updateQuantity(item.productid, -1, product.name, product.price)}
+                      className="px-3 py-1 border rounded-md hover:bg-gray-200"
+                    >-</button>
+                    <span className="text-lg">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.productid, 1, product.name, product.price)}
+                      className="px-3 py-1 border rounded-md hover:bg-gray-200"
+                    >+</button>
+                  </div>
+                ))}
 
               {/* Size Selection */}
               <div className="mt-4">
@@ -311,46 +313,46 @@ function Detail() {
                 <div className="flex justify-center ">
                   <div className="mr-4 mb-4 justify-self-center">
                     <button
-                        onClick={() => {
-                          const localizedName =
+                      onClick={() => {
+                        const localizedName =
                           JSON.parse(product.name)[language] || JSON.parse(product.name)["en"];
-                  
-                          AddtoCart(product.id, product.name , product.price);
-                  
-                          toast.success(`${localizedName} added to cart!`, {
-                            position: "top-right",
-                            autoClose: 2000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "light",
-                          });
-                        }}
-                    className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400  text-white font-bold  rounded-lg ">Add to cart</button>
+
+                        AddtoCart(product.id, product.name, product.price);
+
+                        toast.success(`${localizedName} added to cart!`, {
+                          position: "top-right",
+                          autoClose: 2000,
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "light",
+                        });
+                      }}
+                      className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400  text-white font-bold  rounded-lg ">{t("addToCart")}</button>
                   </div>
                   <div className="justify-self-center">
-                  <button
-                
-                onClick={() => {
-                  const selectedProduct = {
-                    productid: product.id,
-                    productname: product.name,
-                    quantity: 1,
-                    price: product.price,
-                  };
-              
-                  navigate("/checkout", {
-                    state: {
-                      total: product.price,
-                      selectedItems: [selectedProduct],  // pass only this product
-                    },
-                  });
-                }}
-                className="px-6 py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-orange-600 transition">
-                  {t("buy")}
-                </button>
+                    <button
+
+                      onClick={() => {
+                        const selectedProduct = {
+                          productid: product.id,
+                          productname: product.name,
+                          quantity: 1,
+                          price: product.price,
+                        };
+
+                        navigate("/checkout", {
+                          state: {
+                            total: product.price,
+                            selectedItems: [selectedProduct],  // pass only this product
+                          },
+                        });
+                      }}
+                      className="px-6 py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-orange-600 transition">
+                      {t("buy")}
+                    </button>
                   </div>
                 </div>
               </div>
