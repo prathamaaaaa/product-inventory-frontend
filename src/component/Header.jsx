@@ -67,7 +67,7 @@ function Header() {
 
                   <div className='flex justify-self-center'>
                     <div className="">
-                      <ViewCart />
+                      <ViewCart user={user} />
                     </div>
 
                     <div className='mt-2 mr-4 justify-self-center'>

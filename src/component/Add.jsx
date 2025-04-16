@@ -411,7 +411,16 @@ function Add() {
                 className="w-full bg-[#f8f4ee] mb-4 p-3 border rounded-lg">
 
                 <option value="">{t("selectCategory")}</option>
-                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                {/* {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)} */}
+              
+                {categories
+  .filter(cat => Number(cat.storeid) === Number(storeId))
+  .map(cat => (
+    <option key={cat.id} value={cat.id}>
+      {cat.name}
+    </option>
+))}
+
               </select>
             </div>
 
@@ -451,11 +460,19 @@ function Add() {
                 className="w-full p-3 bg-[#f8f4ee] border rounded-lg"
               >
                 <option value="">{t("selectCategory")}</option>
-                {categories.map((cat) => (
+                {/* {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>
-                ))}
+                ))} */}
+              
+              {categories
+  .filter(cat => Number(cat.storeid) === Number(storeId))
+  .map(cat => (
+    <option key={cat.id} value={cat.id}>
+      {cat.name}
+    </option>
+))}
               </select>
 
             </div>

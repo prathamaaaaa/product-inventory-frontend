@@ -28,13 +28,13 @@ function Cart() {
     let updatedCart = cart.map(item => {
       if (!item.userid) {
         console.log("hello")
-        item.userid = user.id || null;
+        item.userid = user?.id || null;
       }
       return item;
     });
     console.log(updatedCart)
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-  }, [cart, user.id]);
+  }, [cart, user?.id]);
 
 
 
@@ -53,30 +53,52 @@ function Cart() {
         }
       });
     } else {
-      navigate("/checkout", { state: { total, couponCode } }); 
+      navigate("/checkout", { state: { total, couponCode } });
     }
   };
   const fetchCartDetails = async () => {
 
+
     try {
 
-      let productIds = cart.map((item) => item.productid); 
+      let productIds = cart.map((item) => item.productid);
+      let userid = cart.map((item) => item.userid);
+      let guestCart = cart.filter(item => item.userid == null);
 
       let response = await axios.get(`${BASE_URL}/api/products/all`);
       let allProducts = response.data.products;
 
       let updatedCart = allProducts
-        .filter((product) => productIds.includes(product.id)) 
+        .filter((product) => productIds.includes(product.id))
+
         .map((product) => {
-          let cartItem = cart.find((item) => item.productid === product.id);
-          return { ...product, quantity: cartItem.quantity };
-        });
+          let cartItem = cart.find((item) => {
+            if (user?.id) {
+              return item.productid === product.id && Number(item.userid) === Number(user.id);
+            }
+            return item.productid === product.id && (item.userid === null || item.userid === undefined);
+          });
+        
+          if (cartItem) {
+            return {
+              ...product,
+              quantity: cartItem.quantity,
+              userid: cartItem.userid
+            };
+          }
+        
+          return null;
+        })
+        .filter(item => item !== null); 
+        
 
       setCartDetails(updatedCart);
     } catch (error) {
       console.error("Error fetching cart details:", error);
     }
   };
+
+
 
   const fetchCoupons = async () => {
     try {
@@ -97,24 +119,25 @@ function Cart() {
     fetchCartDetails();
     fetchCoupons();
   }, []);
+
+
   const updateQuantity = async (id, change, productname, productsprice) => {
 
-
-
-    if (!user) {
-      console.log("User not logged in. Cart stored only in local storage.");
-      return;
-    }
-
     const existingProduct = cart.find((item) => item.productid === id);
+    // const existingProduct = cart.find((item) => 
+    //   item.productid === id && 
+    //   (user?.id ? item.userid === user.id : item.userid == null)
+    // );
+    
+    
     if (!existingProduct) return;
 
     existingProduct.quantity = Math.max(1, existingProduct.quantity + change);
     localStorage.setItem("cart", JSON.stringify(cart));
-    
- try {
+
+    try {
       const cartData = {
-        userid: user.id ?? 0,
+        userid: user?.id ?? 0,
         productid: existingProduct.productid ?? 0,
         productname: productname || "Unknown",
         price: productsprice || 0,
@@ -141,26 +164,62 @@ function Cart() {
     }
   };
 
+  // const deleteItem = async (id) => {
 
+  //   cart = cart.filter((item) => item.productid !== id);
+  //   localStorage.setItem("cart", JSON.stringify(cart));
+
+  //   setCartDetails(prevCart => prevCart.filter((item) => item.id !== id));
+
+  //   if (!user) {
+  //     console.log("User not logged in, only updating local storage.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await fetch(`http://localhost:8081/api/products/cart/${user.id}/${id}`, {
+  //       method: "DELETE",
+  //     });
+
+  //     if (response.ok) {
+  //       console.log("Cart item deleted from database.");
+  //       setDiscountPercent(0);
+  //       setCouponCode("");
+  //     } else {
+  //       const errorText = await response.text();
+  //       console.error("Failed to delete cart item:", errorText);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting cart item:", error);
+  //   }
+  // };
 
 
   const deleteItem = async (id) => {
-
-    cart = cart.filter((item) => item.productid !== id);
+    const user = JSON.parse(localStorage.getItem("user"));
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  
+    cart = cart.filter((item) => {
+      if (user?.id) {
+        return !(item.productid === id && item.userid === user.id);
+      } else {
+        return !(item.productid === id && item.userid == null);
+      }
+    });
+  
     localStorage.setItem("cart", JSON.stringify(cart));
-
     setCartDetails(prevCart => prevCart.filter((item) => item.id !== id));
-
-    if (!user) {
+  
+    if (!user?.id) {
       console.log("User not logged in, only updating local storage.");
       return;
     }
-
+  
     try {
       const response = await fetch(`http://localhost:8081/api/products/cart/${user.id}/${id}`, {
         method: "DELETE",
       });
-
+  
       if (response.ok) {
         console.log("Cart item deleted from database.");
         setDiscountPercent(0);
@@ -173,7 +232,7 @@ function Cart() {
       console.error("Error deleting cart item:", error);
     }
   };
-
+  
   const appliedCoupons = (code) => {
     const selected = coupons.find(c => c.code === code && c.active == true);
     if (selected) {
@@ -231,54 +290,76 @@ function Cart() {
     setTotal(discountedTotal);
   }, [cartDetails, discountPercent]);
 
+  // console.log("user?.id -> ", user?.id);
+  // if(user?.id) {
+  //   console.log("with user -> ", cartDetails
+  //     .filter(item => item.userid === user.id ));
+    
+  // } else {
+  //   console.log("with user null -> ", cartDetails
+  //     .map(item => item));
+    
+  // }
+  
+
   return (
     <>
       <div className="bg-[#FFF8F3] w-full grid-cols-1 grid md:grid-cols-3">
         <div className="w-80% col-span-2">
-          <h2 className="text-3xl text-[#56021F] justify-self-center m-14 font-semibold mb-4">{t("shoppingCart")} ({cartDetails.length} {t("items")})</h2>
+          <h2 className="text-3xl text-[#56021F] justify-self-center m-14 font-semibold mb-4">{t("shoppingCart")} {t("items")}</h2>
           <div className="container lg:px-[12%] bg-[#FFF8F3] w-full  px-6 py-8">
             <div className=" lg:flex-row gap-16">
 
               {/* Left Side: Cart Items */}
+
+
               <div className="w-full bg-[#F2EFE5]  p-6 shadow-md rounded-lg">
 
                 {cartDetails.length > 0 ? (
-                  cartDetails.map((item) => (
+                
+                  cartDetails
+                  // .filter(item => user?.id ? item.userid === user.id : item.userid === null)
 
-                    <div key={`cart-item-${item.id}`} className="flex flex-col sm:flex-row justify-between items-center border-b py-4">
-                      {/* Image + Title */}
-                      <div className="flex items-center w-full sm:w-1/2">
-                        <img
-                          src={Array.isArray(item.imageUrls) && item.imageUrls.length > 0 ? item.imageUrls[0] : DEFAULT_IMAGE}
-                          alt={item.name}
-                          className="w-20 h-20 object-cover rounded-md border"
-                        />
-                        <div className="ml-4">
-                          <p className="font-semibold">
-                            {item.name ? JSON.parse(item.name)[language] || JSON.parse(item.name)["en"] : "Unknown Product"}
-                          </p>
-                          <p className="text-sm text-gray-500">Cotton T-shirt</p>
+                  .filter(item => user?.id ? Number(item.userid) === Number(user.id) : item.userid === null)
+                    .map((item) => (
+
+                      <div key={`cart-item-${item.id}`} className="flex flex-col sm:flex-row justify-between items-center border-b py-4">
+
+
+
+                        {/* Image + Title */}
+                        <div className="flex items-center w-full sm:w-1/2">
+                          <img
+                            src={Array.isArray(item.imageUrls) && item.imageUrls.length > 0 ? item.imageUrls[0] : DEFAULT_IMAGE}
+                            alt={item.name}
+                            className="w-20 h-20 object-cover rounded-md border"
+                          />
+                          <div className="ml-4">
+                            <p className="font-semibold">
+                              {item.name ? JSON.parse(item.name)[language] || JSON.parse(item.name)["en"] : "Unknown Product"}
+                            </p>
+                            <p className="text-sm text-gray-500">Cotton T-shirt</p>
+                          </div>
+                        </div>
+
+                        {/* Quantity */}
+                        <div className=" flex justify-start gap-2 lg:gap-20">
+                          <div className="flex  items-center mt-2 sm:mt-0">
+                            <button onClick={() => updateQuantity(item.id, -1, item.name, item.price)} className="px-2 py-1 border rounded-md">-</button>
+                            <span className="mx-4">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, 1, item.name, item.price)} className="px-2 py-1 border rounded-md">+</button>
+                          </div>
+
+                          {/* Price */}
+                          <div className="mt-2 pt-2 sm:mt-0 text-center w-20 font-medium">₹{item.price}</div>
+
+                          {/* Delete */}
+                          <div className="pb-2 sm:mt-0 text-center w-8">
+                            <button onClick={() => deleteItem(item.id)} className="text-red-500 hover:text-red-700 text-4xl">×</button>
+                          </div>
                         </div>
                       </div>
-
-                      {/* Quantity */}
-                      <div className=" flex justify-start gap-2 lg:gap-20">
-                        <div className="flex  items-center mt-2 sm:mt-0">
-                          <button onClick={() => updateQuantity(item.id, -1, item.name, item.price)} className="px-2 py-1 border rounded-md">-</button>
-                          <span className="mx-4">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, 1, item.name, item.price)} className="px-2 py-1 border rounded-md">+</button>
-                        </div>
-
-                        {/* Price */}
-                        <div className="mt-2 pt-2 sm:mt-0 text-center w-20 font-medium">₹{item.price}</div>
-
-                        {/* Delete */}
-                        <div className="pb-2 sm:mt-0 text-center w-8">
-                          <button onClick={() => deleteItem(item.id)} className="text-red-500 hover:text-red-700 text-4xl">×</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <p className="text-center py-6 text-gray-500">{t("cartEmpty")}</p>
                 )}
@@ -291,7 +372,10 @@ function Cart() {
                 <div className="w-full  mt-10 bg-[#F2EFE5] p-6 rounded-lg shadow-md">
                   <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
                   {/* Item breakdown */}
-                  {cartDetails.map((item) => (
+                  {cartDetails
+                                    .filter(item => user?.id ? Number(item.userid) === Number(user.id) : !item.userid)
+
+                  .map((item) => (
                     <div key={item.id} className="flex justify-between text-sm text-gray-700 mb-2">
                       <span>
                         {item.quantity} × {item.name ? JSON.parse(item.name)[language] || JSON.parse(item.name)["en"] : "Product"}

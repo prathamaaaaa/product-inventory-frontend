@@ -13,8 +13,9 @@ function AddToCart({ product, language }) {
         console.log("Initial Local Storage name:", productName);
     
         let updatedProduct = null;
-        const existingProductIndex = cart.findIndex((item) => item.productid === id);
-    
+        const existingProductIndex = cart.findIndex(
+          (item) => item.productid === id && item.userid === (user?.id ?? null)
+        );    
         if (existingProductIndex !== -1) {
           cart[existingProductIndex].quantity += 1;
           updatedProduct = cart[existingProductIndex];
@@ -64,7 +65,8 @@ function AddToCart({ product, language }) {
         }
       };
     
-
+  
+    
 
   return (
     <div>

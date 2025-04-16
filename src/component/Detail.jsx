@@ -20,6 +20,8 @@ function Detail() {
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [quantity, setQuantity] = useState(1);
   const [cartDetails, setCartDetails] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"))
+
 
   const fetchCartDetails = async () => {
     try {
@@ -33,7 +35,7 @@ function Detail() {
         .filter((product) => productIds.includes(product.id)) // Ensure productid matches id
         .map((product) => {
           let cartItem = cart.find((item) => item.productid === product.id);
-          return { ...product, quantity: cartItem.quantity };
+          return { ...product, quantity: cartItem.quantity , userid : cartItem.userid };
         });
 
       setCartDetails(updatedCart);
@@ -193,7 +195,33 @@ function Detail() {
 
 
 
+  const deleteItem = async (id) => {
 
+    cart = cart.filter((item) => item.productid !== id);
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    setCartDetails(prevCart => prevCart.filter((item) => item.id !== id));
+
+    if (!user) {
+      console.log("User not logged in, only updating local storage.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8081/api/products/cart/${user.id}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        console.log("Cart item deleted from database.");
+      } else {
+        const errorText = await response.text();
+        console.error("Failed to delete cart item:", errorText);
+      }
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+    }
+  };
 
 
 
@@ -291,6 +319,9 @@ function Detail() {
                       onClick={() => updateQuantity(item.productid, 1, product.name, product.price)}
                       className="px-3 py-1 border rounded-md hover:bg-gray-200"
                     >+</button>
+                     <div className="pb-2 sm:mt-0 text-center w-8">
+                          <button onClick={() => deleteItem(item.productid)} className="text-red-500 hover:text-red-700 text-4xl">×</button>
+                        </div>
                   </div>
                 ))}
 

@@ -126,7 +126,7 @@ function AuthPage() {
           {/* Left Section */}
           <div className="w-1/2 bg-gradient-to-r md:block hidden from-[#6A11CB] to-[#2575FC] lg:flex lg:flex-col lg:justify-center lg:items-center p-8">
     
-            <h2 className="text-3xl font-bold text-white">Romanchat</h2>
+            <h2 className="text-3xl font-bold text-white">Inventoryy System</h2>
             <p className="text-white text-sm mt-2 text-center">
               Welcome to the future of communication.
             </p>

@@ -45,7 +45,9 @@ console.log(coupon,"coupon")
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-lg p-6 mt-10 rounded-lg">
+  <div className=' w-full  h-screen bg-[#FFF8F3]'>
+   <div className='pt-16'>
+   <div className="w-[80%] lg:w-[60%] mx-auto bg-[#FDFAF6] shadow-2xl p-6   justify-center pt-10 rounded-lg">
                   <button
             onClick={() => navigate("/admin/coupons")}
             className="text-primary ml-[5%] hover:underline"
@@ -56,14 +58,15 @@ console.log(coupon,"coupon")
       <form onSubmit={handleSubmit} className="space-y-4">
 
         <div>
-          <label className="block font-medium mb-1">{t("couponCode")}</label>
+          <label className="block  font-medium mb-1">{t("couponCode")}</label>
           <input
             type="text"
             name="code"
             value={coupon.code}
             onChange={handleChange}
             required
-            className="w-full border p-2 rounded"
+            placeholder='Enter Coupon Code'
+            className="w-full bg-[#f8f4ee] border p-2 rounded"
           />
         </div>
 
@@ -72,10 +75,11 @@ console.log(coupon,"coupon")
           <input
             type="number"
             name="discount"
+            placeholder='Enter Discount without %'
             value={coupon.discount}
             onChange={handleChange}
             required
-            className="w-full border p-2 rounded"
+            className="w-full bg-[#f8f4ee] border p-2 rounded"
           />
         </div>
 
@@ -84,10 +88,11 @@ console.log(coupon,"coupon")
           <input
             type="number"
             name="minAmount"
+            placeholder='Enter Minimum Amout in Rs.'
             value={coupon.minAmount}
             onChange={handleChange}
             required
-            className="w-full border p-2 rounded"
+            className="w-full border bg-[#f8f4ee] p-2 rounded"
           />
         </div>
 
@@ -100,12 +105,12 @@ console.log(coupon,"coupon")
             checked={coupon.isActive}
             onChange={handleChange}
           />
-          <label className="font-medium">{t("active")}</label>
+          <label className="bg-[#f8f4ee] font-medium">{t("active")}</label>
         </div>
 
         <button
           type="submit"
-          className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+          className="w-full flex items-center justify-center gap-2 bg-[#56021F] hover:bg-[#7D1C4A] text-white py-2 px-4 rounded"
         >
           <FaSave />
           {t("saveCoupon")}
@@ -113,6 +118,8 @@ console.log(coupon,"coupon")
           </button>
       </form>
     </div>
+   </div>
+  </div>
   );
 }
 

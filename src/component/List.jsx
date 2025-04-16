@@ -19,7 +19,6 @@ function List({ storeId }) {
     setLanguage(i18n.language);
   }, [i18n.language]);
   
-
   function CopyUrl() {
     const currentURL = new URL(window.location.href);
     currentURL.searchParams.set("lang", language);
@@ -90,55 +89,118 @@ function List({ storeId }) {
   //     }
   //   });
   // };
+  // useEffect(() => {
+  //   let updatedCart = cart.map(item => {
+  //     if (!item.userid) {
+  //       console.log("Assigning user.id to item:", item);
+  //       item.userid = user?.id || null;
+  //     }
+  //     return item;
+  //   });
+  
+  //   localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // }, [cart, user?.id]);
+  
+  // const syncCartWithDatabase = async (userId) => {
+  //   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  const syncCartWithDatabase = async (userId) => {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (!cart.userid) {
-      console.log("yess")
+  //   if (!cart.userid) {
+  //     console.log("yess")
       
-    }
-    console.log("uuuuuu", userId)
+  //   }
+  //   console.log("uuuuuu", userId)
 
-    if (cart.length === 0) {
-      console.log("No items in local storage cart to sync.");
-      return;
-    }
+  //   if (cart.length === 0) {
+  //     console.log("No items in local storage cart to sync.");
+  //     return;
+  //   }
     
-  //  if (!cart.userid) {
-    const cartData = {
-      userid: Number(user.id),
-      cartItems: cart.map(item => ({
-        productid: Number(item.productid),
-        productname: String(item.productname),
-        quantity: Number(item.quantity)
-      }))
-    };
-  //  }
+  // //  if (!cart.userid) {
+  //   const cartData = {
+  //     userid: Number(user.id),
+  //     cartItems: cart.map(item => ({
+  //       productid: Number(item.productid),
+  //       productname: String(item.productname),
+  //       quantity: Number(item.quantity)
+  //     }))
+  //   };
+  // //  }
 
-    console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
+  //   console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
 
-    try {
+  //   try {
 
 
-      const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(cartData),
-      });
+  //     const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(cartData),
+  //     });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(" Failed to sync local cart with database:", errorText);
-      } else {
-        console.log(" Local cart synced with database successfully.");
-      }
-    } catch (error) {
-      console.error(" Error sending local cart to database:", error);
-    }
+  //     if (!response.ok) {
+  //       const errorText = await response.text();
+  //       console.error(" Failed to sync local cart with database:", errorText);
+  //     } else {
+  //       console.log(" Local cart synced with database successfully.");
+  //     }
+  //   } catch (error) {
+  //     console.error(" Error sending local cart to database:", error);
+  //   }
+  // };
+
+
+
+const syncCartWithDatabase = async (userId) => {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  // Only include items that had no userid before login
+  const itemsToSync = cart.filter(item => item.userid === null);
+
+  if (itemsToSync.length === 0) {
+    console.log("No new items with null userid to sync.");
+    return;
+  }
+  const p= user?.id;
+  console.log(p)
+  const cartData = {
+    userid: Number(p),
+    cartItems: itemsToSync.map(item => ({
+      productid: Number(item.productid),
+      productname: String(item.productname),
+      quantity: Number(item.quantity)
+    }))
   };
+
+  console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
+
+ if (user?.id) {
+  try {
+    const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cartData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(" Failed to sync local cart with database:", errorText);
+    } else {
+      console.log(" Local cart synced with database successfully.");
+
+      const updatedCart = cart.map(item =>
+        item.userid === null ? { ...item, userid: userId } : item
+      );
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+    }
+  } catch (error) {
+    console.error(" Error sending local cart to database:", error);
+  }
+ }
+};
 
 
 

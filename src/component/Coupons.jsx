@@ -72,7 +72,7 @@ function Coupons() {
     <div className="p-6  ">
 <div className='flex justify-between  items-center mb-4'>
 <h2 className="text-2xl font-bold mb-4"> {t("Available Coupons")}</h2>
-<button onClick={()=>{navigate("/addcoupon")}} className='bg-[#B03052] p-4 rounded-lg text-white font-bold hover:bg-[#B03052]'>{t("Add Coupons")}</button>
+<button onClick={()=>{navigate("/addcoupon")}} className='bg-[#56021F] hover:bg-[#7D1C4A] p-4 rounded-lg text-white font-bold '>{t("Add Coupons")}</button>
     </div> 
          {coupons.length === 0 ? (
         <p>{t('noActiveCoupons')}

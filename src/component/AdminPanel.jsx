@@ -32,67 +32,35 @@ function AdminPanel() {
   const location = useLocation();
 
 
-  const handleDeleteAdmin = async () => {
-
-    if (!admin || !admin.id) {
-      Swal.fire(t("error"), t("adminIDNotFound"),t("error"));
-      return;
-    }
-
-    Swal.fire({
-      title: t("doYouWantToSave"),
-      text: t("csvWillBeDownloaded"),
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#28a745",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("yesDownloadDelete"),
-      cancelButtonText: t("noJustDelete"),
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const response = await axios.get(`http://localhost:8081/admin/download-csv/${admin.id}`, {
-            responseType: "blob", // Important for file downloads
-          });
-
-          if (response.status === 400) {
-            Swal.fire(t("error"),t("noProductsFound"),t("error"),);
-            return;
-          }
-
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement("a");
-          link.href = url;
-          link.setAttribute("download", `admin_products_${admin.id}.csv`);
-          document.body.appendChild(link);
-          link.click();
-          link.parentNode.removeChild(link);
-
-          Swal.fire(t("success"),t("downloadSuccess"),t("success"));
-
-          await deleteAdminAndProducts();
-
-        } catch (error) {
-          const errorMessage = error.response?.data || t("failedToDownload");
-          Swal.fire("Error", String(errorMessage), "error");
-        }
-      } else {
-        await deleteAdminAndProducts();
-      }
-    });
-  };
+  
 
   const deleteAdminAndProducts = async () => {
-    try {
-      await axios.delete(`${BASE_URL}/admin/confirm-delete/${admin.id}`);
-      Swal.fire("Error", t("errorAdminIdNotFound"), "error");
-      localStorage.removeItem("admin");
-      window.location.href = "/auth";
-    } catch (error) {
-      const errorMessage = error.response?.data || t("failedToDelete");
-      Swal.fire("Error", String(errorMessage), "error");
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will delete your admin account and related data permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${BASE_URL}/admin/confirm-delete/${admin.id}`);
+        
+        Swal.fire("Deleted!", "Your admin account has been deleted.", "success");
+        localStorage.removeItem("admin");
+        window.location.href = "/auth";
+      } catch (error) {
+        const errorMessage = error.response?.data || t("failedToDelete");
+        Swal.fire("Error", String(errorMessage), "error");
+      }
+    } else {
+      Swal.fire("Cancelled", "Your account is safe.", "info");
     }
   };
+  
 
   useEffect(() => {
     const handleResize = () => {
@@ -225,7 +193,7 @@ function AdminPanel() {
 
 
         <div className="p-4 border-t border-gray-600">
-          <button onClick={handleDeleteAdmin} className="text-white hover:underline">
+          <button onClick={deleteAdminAndProducts} className="text-white hover:underline">
             {t("deleteAccount")}
           </button>
         </div>

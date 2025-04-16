@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-function ViewCart() {
+function ViewCart({user}) {
 
     const navigate = useNavigate();
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -30,13 +30,15 @@ function ViewCart() {
 
               {/* Notification bubble */}
               {cart && cart.length > 0 && (
+  <span className="absolute lg:-top-1 lg:-right-3 -top-2 left-4 bg-[#56021F] text-[#EBE8DB] text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
+    {
+      cart.filter(item =>
+        user?.id ? Number(item.userid) === Number(user.id) : !item.userid
+      ).length
+    }
+  </span>
+)}
 
-                <span className="absolute lg:-top-1 lg:-right-3 -top-2 left-4   bg-[#56021F] text-[#EBE8DB] text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
-                  {cart.length}
-
-                </span>
-
-              )}
             </div>
         </div>
     </div>
