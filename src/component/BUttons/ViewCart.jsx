@@ -32,12 +32,17 @@ function ViewCart({user}) {
               {cart && cart.length > 0 && (
   <span className="absolute lg:-top-1 lg:-right-3 -top-2 left-4 bg-[#56021F] text-[#EBE8DB] text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
     {
-      cart.filter(item =>
-        user?.id ? Number(item.userid) === Number(user.id) : !item.userid
+      Array.from(
+        new Map(
+          cart
+            .filter(item => user?.id ? Number(item.userid) === Number(user.id) : !item.userid)
+            .map(item => [item.productid, item]) // assuming item.productid is the unique product identifier
+        ).values()
       ).length
     }
   </span>
 )}
+
 
             </div>
         </div>

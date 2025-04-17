@@ -330,7 +330,7 @@ const syncCartWithDatabase = async (userId) => {
       {/* header sections  */}
         {(location.pathname.startsWith("/admin/") || location.pathname.startsWith("/store/")) && (
       <div className="bg-[#FDFAF6] p-6 lg:mx-10 mb-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center">
-        <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productList")}</h1>
+        <h1 className="text-3xl font-extrabold p-2 text-gray-800"> {t("productlist")}</h1>
 
 
         {/* <span className="text-gray-700 font-medium">Admin ID: {admin?.id || "Loading..."}</span> */}

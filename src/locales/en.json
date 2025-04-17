@@ -1,6 +1,7 @@
 {
   "welcome": "Welcome",
   "productList": "📦 Product Inventory",
+  "productlist": "📦 Product List",
   "addProduct": "➕ Add Product",
   "searchPlaceholder": "🔍 Search product...",
   "allCategories": "All Categories",
