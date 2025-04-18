@@ -2,6 +2,7 @@ import React from 'react'
 import { toast } from "react-toastify";
 
 function AddToCart({ product, language }) {
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
 
@@ -44,7 +45,7 @@ function AddToCart({ product, language }) {
               quantity: updatedProduct.quantity
             };
     
-            const response = await fetch("http://localhost:8081/api/products/cart", {
+            const response = await fetch(`${BASE_URL}/api/products/cart`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

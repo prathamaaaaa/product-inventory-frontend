@@ -5,12 +5,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 
-
-
-
-
-
-
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [productMap, setProductMap] = useState({});
@@ -23,7 +17,7 @@ export default function Orders() {
   const currentOrderId =
     location.state?.currentOrderId || localStorage.getItem("currentOrderId");
   const user = JSON.parse(localStorage.getItem("user"));
-  
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const [recentOrders, setRecentOrders] = useState([]);
 
 // let pastOL= 0;
@@ -31,7 +25,7 @@ export default function Orders() {
   const fetchOrders = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8081/api/checkout/orders/${user.id}`
+        `${BASE_URL}/api/checkout/orders/${user.id}`
       );
       setOrders(res.data);
       setPastOrderslength(res.data.length);
@@ -61,7 +55,7 @@ export default function Orders() {
         productIds.map(async (id) => {
           try {
             const res = await axios.get(
-              `http://localhost:8081/api/products/${id}`
+             `${BASE_URL}/api/products/${id}`
             );
             productData[id] = res.data;
           } catch (error) {
@@ -98,7 +92,7 @@ export default function Orders() {
     const cancelOrder = async (orderId ,productId) => {
       console.log("Canceling order:", orderId, productId);
       try {
-        const response = await fetch(`http://localhost:8081/api/checkout/order/${orderId}/${productId}`, {
+        const response = await fetch(`${BASE_URL}/api/checkout/order/${orderId}/${productId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",

@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Routes, Route ,Navigate } from "react-router-d
 import List from "./component/List";
 import Add from "./component/Add";
 import Detail from "./component/Detail";
-import Register from "./component/Register";
-import Login from "./component/Login";
+
 import AdminPanel from "./component/AdminPanel";
 import AuthPage from "./component/AuthPage";
 import Store from "./component/Store";
@@ -25,8 +24,6 @@ function App() {
         {/* <Route path="/list" element={<List />} /> */}
         <Route path="/add" element={<Add />} />
         <Route path="/add/:id" element={<Add />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/createstore" element={<CreateStore />} />
         {/* <Route path="/store" element={<Store />} /> */}
@@ -42,8 +39,6 @@ function App() {
           <Route path="/orders" element={<Orders />} />    
           <Route path="/cart" element={<Cart />} />   
           <Route path="/list" element={<List />} />    
-
- 
 
         </Route> 
 

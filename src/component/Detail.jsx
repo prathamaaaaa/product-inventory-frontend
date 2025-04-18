@@ -208,7 +208,7 @@ function Detail() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8081/api/products/cart/${user.id}/${id}`, {
+      const response = await fetch(`${BASE_URL}/api/products/cart/${user.id}/${id}`, {
         method: "DELETE",
       });
 

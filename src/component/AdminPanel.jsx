@@ -83,7 +83,7 @@ function AdminPanel() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:8081/api/products/all");
+      const res = await axios.get(`${BASE_URL}/api/products/all`);
       setProducts(res.data.products || []);
       setCategories(res.data.categories || []);
       setSubCategories(res.data.subCategories || []);

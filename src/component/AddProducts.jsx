@@ -13,8 +13,9 @@ const AddProducts = () => {
   const [newProducts, setNewProducts] = useState([{ name: "", price: "", images: [""] }]);
 
   useEffect(() => {
+
     axios
-      .get("http://localhost:8081/api/products/all")
+      .get(`${BASE_URL}/api/products/all `)
       .then((response) => {
         setProducts(response.data.products);
         setCategories(response.data.categories);
@@ -30,13 +31,13 @@ const AddProducts = () => {
     let requestData = {};
 
     if (type === "category") {
-      url = "http://localhost:8081/api/products/save-category";
+      url = `${BASE_URL}/api/products/save-category`;
       requestData = categoryNames;
     } else if (type === "subcategory") {
-      url = `http://localhost:8081/api/products/save-subcategory?categoryId=${selectedCategory}`;
+      url = `${BASE_URL}/api/products/save-subcategory?categoryId=${selectedCategory}`;
       requestData = subCategoryNames;
     } else {
-      url = `http://localhost:8081/api/products/save-product?categoryId=${selectedCategory}&subcategoryId=${selectedSubCategory}`;
+      url = `${BASE_URL}/api/products/save-product?categoryId=${selectedCategory}&subcategoryId=${selectedSubCategory}`;
       requestData = {
         productNames: newProducts.map((p) => p.name),
         prices: newProducts.map((p) => parseFloat(p.price) || 0),

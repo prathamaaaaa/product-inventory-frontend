@@ -30,7 +30,7 @@ export default function Checkout() {
   const [paymentId, setPaymentId] = useState("");
   const [refundDone, setRefundDone] = useState(false);
   const navigate = useNavigate();
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -42,7 +42,7 @@ export default function Checkout() {
   const [message, setMessage] = useState("");
   const handleRefund = async () => {
     try {
-      const res = await axios.post("http://localhost:8081/api/checkout/refund", {
+      const res = await axios.post(`${BASE_URL}/api/checkout/refund`, {
         paymentId,
       });
       console.log(res.data);
@@ -89,9 +89,9 @@ export default function Checkout() {
     try {
 
 
-      const res = await axios.post("http://localhost:8081/api/checkout/create-order", { amount });
+      const res = await axios.post(`${BASE_URL}/api/checkout/create-order`, { amount });
       const { orderId, amount: amt, currency, key } = res.data;
-      await axios.post("http://localhost:8081/api/checkout/payment-details", {
+      await axios.post(`${BASE_URL}/api/checkout/payment-details`, {
         userid: user.id,
         razorpayKey: key,
       });
@@ -137,7 +137,7 @@ export default function Checkout() {
             };
 
             console.log("Payment Payload:", paymentPayload);
-            await axios.post("http://localhost:8081/api/checkout/payment-details", paymentPayload);
+            await axios.post(`${BASE_URL}/api/checkout/payment-details`, paymentPayload);
 
             currentOrderId = response.razorpay_order_id;
             console.log("Current Order ID:", currentOrderId);
@@ -216,7 +216,7 @@ export default function Checkout() {
     console.log("Form :", checkoutData);
 
     try {
-      await axios.post("http://localhost:8081/api/checkout/save", payload);
+      await axios.post(`${BASE_URL}/api/checkout/save`, payload);
       // alert("Checkout details saved successfully!");
       // setStep(2);
       return true;

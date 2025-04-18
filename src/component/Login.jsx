@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const navigate = useNavigate();
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
@@ -15,7 +15,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8081/admin/login", {
+      const res = await axios.post(`${BASE_URL}/admin/login`, {
         email: credentials.email,
         password: credentials.password,
       });
@@ -39,7 +39,7 @@ function Login() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const res = await axios.post("http://localhost:8081/auth/google", {
+      const res = await axios.post(`${BASE_URL}/auth/google`, {
         token: credentialResponse.credential,
       });
   
