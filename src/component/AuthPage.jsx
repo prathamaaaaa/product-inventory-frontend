@@ -121,7 +121,7 @@ function AuthPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl shadow-lg flex w-[70%] overflow-hidden"
+          className="bg-white rounded-2xl shadow-lg flex lg:w-[70%] w-[90%] overflow-hidden"
         >
           {/* Left Section */}
           <div className="w-1/2 bg-gradient-to-r md:block hidden from-[#6A11CB] to-[#2575FC] lg:flex lg:flex-col lg:justify-center lg:items-center p-8">

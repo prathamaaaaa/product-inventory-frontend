@@ -153,55 +153,7 @@ function List({ storeId }) {
 
 
 
-const syncCartWithDatabase = async (userId) => {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // Only include items that had no userid before login
-  const itemsToSync = cart.filter(item => item.userid === null);
-
-  if (itemsToSync.length === 0) {
-    console.log("No new items with null userid to sync.");
-    return;
-  }
-  const p= user?.id;
-  console.log(p)
-  const cartData = {
-    userid: Number(p),
-    cartItems: itemsToSync.map(item => ({
-      productid: Number(item.productid),
-      productname: String(item.productname),
-      quantity: Number(item.quantity)
-    }))
-  };
-
-  console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
-
- if (user?.id) {
-  try {
-    const response = await fetch(`${BASE_URL}/api/products/cart/bulk`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(cartData),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(" Failed to sync local cart with database:", errorText);
-    } else {
-      console.log(" Local cart synced with database successfully.");
-
-      const updatedCart = cart.map(item =>
-        item.userid === null ? { ...item, userid: userId } : item
-      );
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-    }
-  } catch (error) {
-    console.error(" Error sending local cart to database:", error);
-  }
- }
-};
 
 
 
@@ -232,35 +184,6 @@ const syncCartWithDatabase = async (userId) => {
 
 
 
-  useEffect(() => {
-    syncCartWithDatabase();
-
-    let url = `${BASE_URL}/api/products/all`;
-    if (storeId) {
-      url = `${BASE_URL}/api/stores/product/${storeId}`;
-      console.log(storeId)
-    }
-    axios.get(url)
-      .then(response => {
-        console.log("API Response:", response.data);
-        setProducts(response.data.products || []);
-        setFilteredProducts(response.data.products || []);
-        setCategories(response.data.categories || []);
-        setSubCategories(response.data.subCategories || []);
-        setLoading(false);
-        let allProducts = response.data.products || [];
-        console.log("Categories Data:", response.data.categories);
-        if (storeId) {
-          allProducts = allProducts.filter(product => product.storeId == storeId);
-        }
-        console.log("location", location.pathname);
-      })
-      .catch(error => {
-        console.error("Error fetching data:", error);
-        setError(error);
-        setLoading(false);
-      });
-  }, []);
 
 
   if (loading) return <p className="text-center text-lg">{t("loading")}</p>;
@@ -321,7 +244,84 @@ const syncCartWithDatabase = async (userId) => {
   };
 
 
+  const syncCartWithDatabase = async (userId) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  
+    // Only include items that had no userid before login
+    const itemsToSync = cart.filter(item => item.userid === null);
+  
+    if (itemsToSync.length === 0) {
+      console.log("No new items with null userid to sync.");
+      return;
+    }
+    const p= user?.id;
+    console.log(p)
+    const cartData = {
+      userid: Number(p),
+      cartItems: itemsToSync.map(item => ({
+        productid: Number(item.productid),
+        productname: String(item.productname),
+        quantity: Number(item.quantity)
+      }))
+    };
+  
+    console.log("🚀 Sending cart data:", JSON.stringify(cartData, null, 2));
+  
+   if (user?.id) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/products/cart/bulk`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cartData),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(" Failed to sync local cart with database:", errorText);
+      } else {
+        console.log(" Local cart synced with database successfully.");
+  
+        const updatedCart = cart.map(item =>
+          item.userid === null ? { ...item, userid: userId } : item
+        );
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+      }
+    } catch (error) {
+      console.error(" Error sending local cart to database:", error);
+    }
+   }
+  };
+  useEffect(() => {
+    syncCartWithDatabase();
 
+    let url = `${BASE_URL}/api/products/all`;
+    if (storeId) {
+      url = `${BASE_URL}/api/stores/product/${storeId}`;
+      console.log(storeId)
+    }
+    axios.get(url)
+      .then(response => {
+        console.log("API Response:", response.data);
+        setProducts(response.data.products || []);
+        setFilteredProducts(response.data.products || []);
+        setCategories(response.data.categories || []);
+        setSubCategories(response.data.subCategories || []);
+        setLoading(false);
+        let allProducts = response.data.products || [];
+        console.log("Categories Data:", response.data.categories);
+        if (storeId) {
+          allProducts = allProducts.filter(product => product.storeId == storeId);
+        }
+        console.log("location", location.pathname);
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error);
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
 
   return (
 

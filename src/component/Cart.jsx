@@ -15,14 +15,12 @@ function Cart() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const { t, i18n } = useTranslation();
-  const [discountedPrice, setDiscountedPrice] = useState(0);
   const [coupons, setCoupons] = useState([]);
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponCode, setCouponCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const [total, setTotal] = useState(0);
   const [d, setd] = useState(0);
-  // const subtotal = Array.isArray(cartDetails) ? cartDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0) : 0;
+
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
   useEffect(() => {
     let updatedCart = cart.map(item => {
@@ -36,26 +34,6 @@ function Cart() {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   }, [cart, user?.id]);
 
-
-
-  const handleCheckout = () => {
-    if (!user) {
-      Swal.fire({
-        title: "Login Required",
-        text: "You need to log in before proceeding to checkout.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Login",
-        cancelButtonText: "Cancel",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/auth", { state: { role: "user" } });
-        }
-      });
-    } else {
-      navigate("/checkout", { state: { total, couponCode } });
-    }
-  };
   const fetchCartDetails = async () => {
 
 
@@ -97,30 +75,6 @@ function Cart() {
       console.error("Error fetching cart details:", error);
     }
   };
-
-
-
-  const fetchCoupons = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/coupons/all`);
-      setCoupons(res.data.filter(c => c.active == true));
-      console.log("Coupons fetched:", res.data);
-
-    } catch (err) {
-      console.error("Failed to fetch coupons", err);
-    }
-  };
-  useEffect(() => {
-    console.log("Updated Coupons:", coupons);
-  }, [coupons]);
-
-
-  useEffect(() => {
-    fetchCartDetails();
-    fetchCoupons();
-  }, []);
-
-
   const updateQuantity = async (id, change, productname, productsprice) => {
 
     const existingProduct = cart.find((item) => item.productid === id);
@@ -164,36 +118,6 @@ function Cart() {
     }
   };
 
-  // const deleteItem = async (id) => {
-
-  //   cart = cart.filter((item) => item.productid !== id);
-  //   localStorage.setItem("cart", JSON.stringify(cart));
-
-  //   setCartDetails(prevCart => prevCart.filter((item) => item.id !== id));
-
-  //   if (!user) {
-  //     console.log("User not logged in, only updating local storage.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch(`http://localhost:8081/api/products/cart/${user.id}/${id}`, {
-  //       method: "DELETE",
-  //     });
-
-  //     if (response.ok) {
-  //       console.log("Cart item deleted from database.");
-  //       setDiscountPercent(0);
-  //       setCouponCode("");
-  //     } else {
-  //       const errorText = await response.text();
-  //       console.error("Failed to delete cart item:", errorText);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting cart item:", error);
-  //   }
-  // };
-
 
   const deleteItem = async (id) => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -232,13 +156,55 @@ function Cart() {
       console.error("Error deleting cart item:", error);
     }
   };
-  
-  const appliedCoupons = (code) => {
-    const selected = coupons.find(c => c.code === code && c.active == true);
-    if (selected) {
-      setCouponCode(selected.code);
+
+
+  const handleCheckout = () => {
+    if (!user) {
+      Swal.fire({
+        title: "Login Required",
+        text: "You need to log in before proceeding to checkout.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Login",
+        cancelButtonText: "Cancel",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/auth", { state: { role: "user" } });
+        }
+      });
+    } else {
+      navigate("/checkout", { state: { total, couponCode } });
     }
   };
+
+
+
+  const fetchCoupons = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/coupons/all`);
+      setCoupons(res.data.filter(c => c.active == true));
+      console.log("Coupons fetched:", res.data);
+
+    } catch (err) {
+      console.error("Failed to fetch coupons", err);
+    }
+  };
+  useEffect(() => {
+    console.log("Updated Coupons:", coupons);
+  }, [coupons]);
+
+
+  useEffect(() => {
+    fetchCartDetails();
+    fetchCoupons();
+  }, []);
+
+
+  
+
+
+  
+ 
 
   const applyCouponFromCard = (code) => {
     const selected = coupons.find(c => c.code === code && c.active === true);
@@ -273,6 +239,15 @@ function Cart() {
   };
   let discountedTotal = 0;
 
+
+  const appliedCoupons = (code) => {
+    const selected = coupons.find(c => c.code === code && c.active == true);
+    if (selected) {
+      setCouponCode(selected.code);
+    }
+  };
+
+  
   useEffect(() => {
     const subtotal = Array.isArray(cartDetails)
       ? cartDetails.reduce((sum, item) => sum + item.price * item.quantity, 0)
