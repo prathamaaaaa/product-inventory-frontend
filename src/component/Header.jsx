@@ -11,6 +11,7 @@ function Header() {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const admin = JSON.parse(localStorage.getItem("admin") || "null");
+  console.log("BASE_URL", process.env.REACT_APP_BACKEND_URL);
 
   const handleLogout = () => {
     Swal.fire({

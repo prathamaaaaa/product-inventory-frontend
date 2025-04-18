@@ -63,6 +63,7 @@ function List({ storeId }) {
 
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+  console.log("BASE_URL", BASE_URL);
 
   const params = new URLSearchParams(location.search);
 
@@ -177,7 +178,7 @@ const syncCartWithDatabase = async (userId) => {
 
  if (user?.id) {
   try {
-    const response = await fetch("http://localhost:8081/api/products/cart/bulk", {
+    const response = await fetch(`${BASE_URL}/api/products/cart/bulk`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
