@@ -3,7 +3,8 @@ import axios from 'axios';
 import { FaSave } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
-
+import { initializeFirebaseMessaging,  handleForegroundNotification ,getFirebaseToken, onMessageListener, requestFirebaseToken } from '../firebase-messaging'; // Adjust the import path as necessary
+  
 function AddCoupon() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
     const navigate = useNavigate();
@@ -24,25 +25,53 @@ function AddCoupon() {
     });
   };
 console.log(coupon,"coupon")
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const res = await axios.post(`${BASE_URL}/api/coupons/add`, coupon);
+  //     alert('Coupon added successfully!');
+  //     console.log('Saved:', res.data);
+
+  //     setCoupon({
+  //       code: '',
+  //       discount: '',
+  //       minAmount: '',
+  //       isActive: true,
+  //     });
+  //   } catch (err) {
+  //     console.error('Error adding coupon:', err);
+  //     alert('Failed to add coupon');
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/coupons/add`, coupon);
-      alert('Coupon added successfully!');
-      console.log('Saved:', res.data);
+        // Save coupon logic
+        const res = await axios.post(`${BASE_URL}/api/coupons/add`, coupon);
+        alert('Coupon added successfully!');
 
-      setCoupon({
-        code: '',
-        discount: '',
-        minAmount: '',
-        isActive: true,
-      });
+        const token = await requestFirebaseToken();
+        console.log('FCM Token Received:', token);
+        onMessageListener();
+      
+        
+        if (token) {
+            await axios.post(`${BASE_URL}/api/notification/send`, {
+                token,
+                title: 'New Coupon Added',
+                body: `Coupon ${coupon.code} is live!`,
+            });
+        }
+
+        setCoupon({ code: '', discount: '', minAmount: '', isActive: true });
     } catch (err) {
-      console.error('Error adding coupon:', err);
-      alert('Failed to add coupon');
+        console.error('Error:', err);
+        alert('Failed to add coupon or send notification');
     }
-  };
+};
 
   return (
   <div className=' w-full  h-screen bg-[#FFF8F3]'>

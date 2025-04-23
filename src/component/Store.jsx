@@ -4,6 +4,8 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import DownloadCSVButton from "./BUttons/DownloadCSVButton";
+
+
 function Store() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
   const { t, i18n } = useTranslation();
@@ -79,7 +81,6 @@ function Store() {
     }
   }, [i18n]);
 
-
   const handleDeleteStore = (storeId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -115,7 +116,6 @@ function Store() {
       }
     });
   };
-  
 
   return (
     <div className="min-h-screen bg-[#FFF8F3] p-8 ">

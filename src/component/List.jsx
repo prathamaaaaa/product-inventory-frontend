@@ -186,8 +186,6 @@ function List({ storeId }) {
 
 
 
-  if (loading) return <p className="text-center text-lg">{t("loading")}</p>;
-  if (error) return <p className="text-center text-red-500">{t("errorLoading")}</p>;
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -322,6 +320,8 @@ function List({ storeId }) {
         setLoading(false);
       });
   }, []);
+  if (loading) return <p className="text-center text-lg">{t("loading")}</p>;
+  if (error) return <p className="text-center text-red-500">{t("errorLoading")}</p>;
 
   return (
 
